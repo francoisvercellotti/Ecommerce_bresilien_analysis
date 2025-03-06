@@ -1,0 +1,38 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+venv/
+env/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Fichiers de données volumineux
+data/*.csv
+
+# Variables d'environnement
+.env
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Caches de pytest/coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Caches de Jupyter Notebook
+.ipynb_checkpoints
+
+# Fichiers VSCode
+.vscode/
