@@ -155,7 +155,7 @@ st.markdown("""
 
 # Fonction pour formater les valeurs monétaires
 def format_currency(value):
-    return f"R$ {value:,.2f}"
+    return f"R$ {value:,.0f}"
 
 # Chargement des données avec cache et paramètres de date
 @st.cache_data(ttl=3600)
@@ -456,8 +456,8 @@ with layout_container:
                 st.markdown(
                     f"""
                     <div class='metric-card-sales' style="background-color: #1e88e5; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:1rem; font-weight:bold;">Nombre de vendeurs</h3>
-                        <h2 style="margin:0; font-size:2rem; font-weight:bold;">{format(len(seller_data), ',')}</h2>
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Nombre de vendeurs </h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{format(len(seller_data), ',')}</h2>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -467,8 +467,8 @@ with layout_container:
                 st.markdown(
                     f"""
                     <div class='metric-card-revenue' style="background-color: #43a047; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:1rem; font-weight:bold;">Revenu total</h3>
-                        <h2 style="margin:0; font-size:2rem; font-weight:bold;">{format_currency(seller_data['total_revenue'].sum())}</h2>
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Revenu total</h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{format_currency(seller_data['total_revenue'].sum())}</h2>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -478,8 +478,8 @@ with layout_container:
                 st.markdown(
                     f"""
                     <div class='metric-card-average' style="background-color: #fb8c00; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:1rem; font-weight:bold;">Note moyenne</h3>
-                        <h2 style="margin:0; font-size:2rem; font-weight:bold;">{seller_data['avg_review'].mean():.2f}/5</h2>
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Note moyenne</h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{seller_data['avg_review'].mean():.2f}/5</h2>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -489,8 +489,8 @@ with layout_container:
                 st.markdown(
                     f"""
                     <div class='metric-card-delivery' style="background-color: #8e24aa; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:1rem; font-weight:bold;">% Livraison à temps</h3>
-                        <h2 style="margin:0; font-size:2rem; font-weight:bold;">{seller_data['on_time_delivery_percentage'].mean():.1f}%</h2>
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Livraison à temps</h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{seller_data['on_time_delivery_percentage'].mean():.1f}%</h2>
                     </div>
                     """,
                     unsafe_allow_html=True

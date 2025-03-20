@@ -585,8 +585,8 @@ with layout_container:
                 st.markdown(
                     f"""
                     <div class='metric-card-customers' style="background-color: #1e88e5; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:1rem; font-weight:bold;">Nombre de clients</h3>
-                        <h2 style="margin:0; font-size:2rem; font-weight:bold;">{format(len(customer_data), ',')}</h2>
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Nombre de clients           </h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{format(len(customer_data), ',')}</h2>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -597,8 +597,8 @@ with layout_container:
                 st.markdown(
                     f"""
                     <div class='metric-card-spend' style="background-color: #43a047; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:1rem; font-weight:bold;">Dépense moyenne</h3>
-                        <h2 style="margin:0; font-size:2rem; font-weight:bold;">{format_currency(avg_spend)}</h2>
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Dépense moyenne              </h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{format_currency(avg_spend)}</h2>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -609,8 +609,8 @@ with layout_container:
                 st.markdown(
                     f"""
                     <div class='metric-card-frequency' style="background-color: #fb8c00; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:1rem; font-weight:bold;">Fréquence d'achat (mensuelle)</h3>
-                        <h2 style="margin:0; font-size:2rem; font-weight:bold;">{avg_frequency:.2f}</h2>
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Fréquence d'achat (m)</h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{avg_frequency:.2f}</h2>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -621,8 +621,8 @@ with layout_container:
                 st.markdown(
                     f"""
                     <div class='metric-card-clv' style="background-color: #8e24aa; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:1rem; font-weight:bold;">Valeur annuelle moyenne</h3>
-                        <h2 style="margin:0; font-size:2rem; font-weight:bold;">{format_currency(avg_clv)}</h2>
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Valeur moyenne (a)</h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{format_currency(avg_clv)}</h2>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -636,6 +636,7 @@ with layout_container:
     # Tableau de segments clients
     st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
     st.markdown("<h3>Segments clients</h3>", unsafe_allow_html=True)
+
     try:
         segments_data = load_customer_segments_summary(sql_start_date, sql_end_date)
         if not segments_data.empty:
@@ -643,56 +644,44 @@ with layout_container:
             if selected_segments and len(selected_segments) > 0:
                 segments_data = segments_data[segments_data["customer_segment"].isin(selected_segments)]
 
-            # Duplicata du DataFrame pour conserver les valeurs numériques pour le style
+            # Dupliquer le DataFrame pour le style
             numeric_segments = segments_data.copy()
 
-            # Vérifier quelles colonnes existent dans le DataFrame
-            available_columns = segments_data.columns.tolist()
+            # Identifier les colonnes numériques pour appliquer le gradient
+            numeric_columns = numeric_segments.select_dtypes(include=["number"]).columns.tolist()
 
-            # Sélectionner les colonnes pour le gradient de couleur
-            gradient_columns = []
-            if "count" in available_columns:
-                gradient_columns.append(("count", "Blues"))
-            if "segment_count" in available_columns:
-                gradient_columns.append(("segment_count", "Blues"))
-            if "avg_total_spend" in available_columns:
-                gradient_columns.append(("avg_total_spend", "Greens"))
-            if "avg_order_value" in available_columns:
-                gradient_columns.append(("avg_order_value", "RdPu"))
-            if "avg_purchase_frequency" in available_columns:
-                gradient_columns.append(("avg_purchase_frequency", "Oranges"))
-            if "avg_annual_value" in available_columns:
-                gradient_columns.append(("avg_annual_value", "RdYlGn"))
-            if "total_annual_value" in available_columns:
-                gradient_columns.append(("total_annual_value", "Spectral"))
+            # Création du style
+            styled_segments = (
+                numeric_segments.style
+                .hide(axis="index")  # Cacher l’index
+                .set_table_styles([
+                    {
+                        'selector': 'th',
+                        'props': [
+                            ('background-color', '#1e88e5'),
+                            ('color', 'white'),
+                            ('text-align', 'center')
+                        ]
+                    },
+                    {
+                        'selector': 'td',
+                        'props': [('text-align', 'center')]
+                    }
+                ], overwrite=False)
+                # Colorer la première colonne (Segment) en gris clair
+                .set_properties(subset=["customer_segment"], **{'background-color': '#f0f0f0', 'color': 'black'})
+                # Appliquer le même dégradé bleu sur toutes les colonnes numériques
+                .background_gradient(subset=numeric_columns, cmap="Blues")
+            )
 
-            # Créer le style de base
-            styled_segments = numeric_segments.style
-
-            # Appliquer le gradient à chaque colonne disponible
-            for col, cmap in gradient_columns:
-                styled_segments = styled_segments.background_gradient(subset=[col], cmap=cmap)
-
-            # Appliquer le formatage selon les colonnes disponibles
-            format_dict = {}
-            if "avg_total_spend" in available_columns:
-                format_dict["avg_total_spend"] = "R$ {:.2f}"
-            if "avg_order_value" in available_columns:
-                format_dict["avg_order_value"] = "R$ {:.2f}"
-            if "avg_purchase_frequency" in available_columns:
-                format_dict["avg_purchase_frequency"] = "{:.4f}"
-            if "avg_annual_value" in available_columns:
-                format_dict["avg_annual_value"] = "R$ {:.2f}"
-            if "total_annual_value" in available_columns:
-                format_dict["total_annual_value"] = "R$ {:.2f}"
-
-            # Appliquer le formatage
+            # Formatage des valeurs numériques
+            format_dict = {col: "{:,.2f}" for col in numeric_columns}  # Format 2 décimales avec séparateur de milliers
             styled_segments = styled_segments.format(format_dict)
 
-            # Générer le HTML
+            # Convertir en HTML
             html_segments = styled_segments.to_html()
 
-            # Dictionnaire de correspondance pour les noms de colonnes
+            # Renommage des colonnes en français
             column_names = {
                 "customer_segment": "Segment",
                 "count": "Nombre de clients",
@@ -704,25 +693,15 @@ with layout_container:
                 "total_annual_value": "Valeur Annuelle Totale"
             }
 
-            # Remplacer les en-têtes de colonnes avec les noms français
             for eng_name, fr_name in column_names.items():
-                if eng_name in available_columns:
+                if eng_name in numeric_segments.columns:
                     html_segments = html_segments.replace(f'>{eng_name}<', f'>{fr_name}<')
 
-            # Ajouter le CSS pour un tableau normal sans défilement avec un padding réduit
-            st.markdown("""
-            <style>
-            .table-container table {
-                width: 100%;
-                margin-bottom: 10px; /* Réduit l'espace après le tableau */
-            }
-            </style>
-            """, unsafe_allow_html=True)
 
-            # Afficher le tableau sans défilement
-            st.markdown(f'<div class="table-container">{html_segments}</div>', unsafe_allow_html=True)
+            # Afficher le tableau avec scroll si nécessaire
+            st.markdown(f'{html_segments}</div>', unsafe_allow_html=True)
 
-            # Option de téléchargement
+            # Bouton de téléchargement
             segments_csv = segments_data.to_csv(index=False)
             st.download_button(
                 label="📥 Télécharger les données (CSV)",
@@ -735,7 +714,10 @@ with layout_container:
             st.warning("Aucune donnée de segment client disponible pour les filtres sélectionnés.")
     except Exception as e:
         st.error(f"Erreur lors de l'affichage du tableau des segments: {e}")
+
     st.markdown("</div>", unsafe_allow_html=True)
+
+
 
     # Distribution des clients par segment
     col1, col2 = st.columns(2)
@@ -1004,6 +986,7 @@ with layout_container:
     # Table des clients les plus valorisés
     st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
     st.markdown("<h3>Top 20 clients les plus valorisés</h3>", unsafe_allow_html=True)
+
     try:
         if not customer_data.empty:
             # Ajouter un sélecteur pour l'ordre de tri
@@ -1023,9 +1006,11 @@ with layout_container:
             )
 
             # Sélectionner les colonnes pertinentes
-            top_customers = customer_data[["customer_unique_id", "order_count", "total_spend",
-                                        "average_order_value", "purchase_frequency_monthly",
-                                        "estimated_annual_value", "customer_segment"]]
+            top_customers = customer_data[[
+                "customer_unique_id", "order_count", "total_spend",
+                "average_order_value", "purchase_frequency_monthly",
+                "estimated_annual_value", "customer_segment"
+            ]]
 
             # Trier selon la colonne sélectionnée
             top_customers = top_customers.sort_values(by=selected_sort, ascending=False)
@@ -1034,17 +1019,17 @@ with layout_container:
             display_limit = st.slider("Nombre de clients à afficher", 5, 100, 20)
             top_customers = top_customers.head(display_limit)
 
-            # Dupliquer le DataFrame pour conserver les valeurs numériques pour le style
+            # Copie pour conserver les valeurs numériques pour le style
             numeric_df = top_customers.copy()
 
-            # Création d'une copie pour l'affichage avec formatage
+            # Copie pour affichage avec formatage
             top_customers_display = top_customers.copy()
             top_customers_display["total_spend"] = top_customers_display["total_spend"].apply(lambda x: f"R$ {x:,.2f}")
             top_customers_display["average_order_value"] = top_customers_display["average_order_value"].apply(lambda x: f"R$ {x:,.2f}")
             top_customers_display["purchase_frequency_monthly"] = top_customers_display["purchase_frequency_monthly"].apply(lambda x: f"{x:.4f}")
             top_customers_display["estimated_annual_value"] = top_customers_display["estimated_annual_value"].apply(lambda x: f"R$ {x:,.2f}")
 
-            # Renommer les colonnes pour l'affichage
+            # Renommer les colonnes pour affichage
             top_customers_display = top_customers_display.rename(columns={
                 "customer_unique_id": "ID Client",
                 "order_count": "Nb Commandes",
@@ -1055,13 +1040,12 @@ with layout_container:
                 "customer_segment": "Segment"
             })
 
-            # Appliquer le style au DataFrame
+            # Appliquer le style uniforme avec une seule palette de couleur (Bleu)
             styled_df = numeric_df.style\
-                .background_gradient(subset=["order_count"], cmap="Blues")\
-                .background_gradient(subset=["total_spend"], cmap="Greens")\
-                .background_gradient(subset=["average_order_value"], cmap="RdPu")\
-                .background_gradient(subset=["purchase_frequency_monthly"], cmap="Oranges")\
-                .background_gradient(subset=["estimated_annual_value"], cmap="RdYlGn")\
+                .background_gradient(subset=["order_count", "total_spend", "average_order_value",
+                                            "purchase_frequency_monthly", "estimated_annual_value"], cmap="Blues")\
+                                            .applymap(lambda _: "background-color: lightgrey;", subset=["customer_unique_id", "customer_segment"])\
+                                            .applymap(lambda _: "color: black;", subset=["customer_unique_id", "customer_segment"])\
                 .format({
                     "total_spend": "R$ {:.2f}",
                     "average_order_value": "R$ {:.2f}",
@@ -1069,10 +1053,23 @@ with layout_container:
                     "estimated_annual_value": "R$ {:.2f}"
                 })
 
-            # Générer le HTML
-            html_table = styled_df.to_html()
+            # Appliquer un fond bleu clair à l'entête
+            styled_df = styled_df.set_table_styles([
+                {
+                    'selector': 'th',  # Sélectionner la ligne d'entête
+                    'props': [
+                        ('background-color', '#1e88e5'),  # Bleu clair pour la ligne d'entête
+                        ('color', 'white'),  # Texte noir pour l'entête
+                        ('text-align', 'center')  # Centrer le texte de l'entête
+                    ]
+                }
+            ])
 
-            # Remplacer les en-têtes de colonnes avec les noms français
+
+            # Générer le HTML sans index
+            html_table = styled_df.hide(axis="index").to_html()
+
+            # Remplacement des noms de colonnes en français
             html_table = html_table.replace('>customer_unique_id<', '>ID Client<')
             html_table = html_table.replace('>order_count<', '>Nb Commandes<')
             html_table = html_table.replace('>total_spend<', '>Dépense Totale<')
@@ -1081,7 +1078,7 @@ with layout_container:
             html_table = html_table.replace('>estimated_annual_value<', '>Valeur Annuelle<')
             html_table = html_table.replace('>customer_segment<', '>Segment<')
 
-            # Ajouter le CSS pour le défilement
+            # Ajout du CSS pour le défilement
             st.markdown("""
             <style>
             .scrollable-table {
@@ -1111,6 +1108,8 @@ with layout_container:
             st.warning("Aucune donnée client disponible.")
     except Exception as e:
         st.error(f"Erreur lors de l'affichage des clients les plus valorisés: {e}")
+
     st.markdown("</div>", unsafe_allow_html=True)
+
     # Pied de page
     st.markdown("<div class='footer'>© 2023 Olist - Analyse des clients - Dernière mise à jour: {}</div>".format(datetime.now().strftime("%d/%m/%Y %H:%M")), unsafe_allow_html=True)

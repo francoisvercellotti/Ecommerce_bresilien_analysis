@@ -6,6 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from utils.database import execute_query, execute_raw_query
@@ -332,7 +333,7 @@ def load_rfm_segments(start_date=None, end_date=None):
     return execute_raw_query(query)
 
 # Constantes pour les graphiques
-graph_height = 300
+graph_height = 400
 heatmap_height = 600
 
 # Titre principal
@@ -404,7 +405,7 @@ with st.sidebar:
     months_to_display = st.slider(
         "Nombre de mois à analyser",
         min_value=3,
-        max_value=12,
+        max_value=24,
         value=6,
         step=1
     )
@@ -461,8 +462,8 @@ with layout_container:
                 st.markdown(
                     f"""
                     <div class='metric-card-cohort' style="background-color: #1e88e5; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:1rem; font-weight:bold;">Total Clients</h3>
-                        <h2 style="margin:0; font-size:2rem; font-weight:bold;">{format(int(total_customers), ',')}</h2>
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Total Clients</h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{format(int(total_customers), ',')}</h2>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -472,8 +473,8 @@ with layout_container:
                 st.markdown(
                     f"""
                     <div class='metric-card-retention' style="background-color: #43a047; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:1rem; font-weight:bold;">Rétention M+1</h3>
-                        <h2 style="margin:0; font-size:2rem; font-weight:bold;">{avg_retention_1m:.2f}%</h2>
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Rétention M+1</h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{avg_retention_1m:.2f}%</h2>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -483,8 +484,8 @@ with layout_container:
                 st.markdown(
                     f"""
                     <div class='metric-card-retention' style="background-color: #fb8c00; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:1rem; font-weight:bold;">Rétention M+3</h3>
-                        <h2 style="margin:0; font-size:2rem; font-weight:bold;">{avg_retention_3m:.2f}%</h2>
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Rétention M+3</h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{avg_retention_3m:.2f}%</h2>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -494,48 +495,169 @@ with layout_container:
                 st.markdown(
                     f"""
                     <div class='metric-card-aov' style="background-color: #8e24aa; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:1rem; font-weight:bold;">Revenu Moyen Initial</h3>
-                        <h2 style="margin:0; font-size:2rem; font-weight:bold;">{format_currency(avg_revenue_per_customer)}</h2>
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Revenu Moyen Initial</h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{format_currency(avg_revenue_per_customer)}</h2>
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
 
+            # Options d'affichage des cohortes dans la barre latérale
+            st.sidebar.markdown("### Options d'affichage des cohortes")
+            display_option = st.sidebar.selectbox(
+                "Afficher les cohortes par:",
+                [
+                    "Chronologie (12 dernières cohortes)",
+                    "Mêmes mois sur différentes années",
+                    "Trimestriel",
+                    "Semestriel",
+                    "Annuel"
+                ],
+                index=0,
+                key="display_option_key"
+            )
+
+            # Formatage des dates pour affichage plus propre
+            cohort_data['cohort_month_str'] = pd.to_datetime(cohort_data['cohort_month']).dt.strftime('%b %Y')
+            cohort_data['year'] = pd.to_datetime(cohort_data['cohort_month']).dt.year
+            cohort_data['month'] = pd.to_datetime(cohort_data['cohort_month']).dt.month
+            cohort_data['month_name'] = pd.to_datetime(cohort_data['cohort_month']).dt.strftime('%b')
+
+            # Préparation des données selon l'option sélectionnée
+            if display_option == "Chronologie (12 dernières cohortes)":
+                # Correction de l'erreur: utiliser np.sort au lieu de sort_values
+                unique_dates = pd.to_datetime(cohort_data['cohort_month'].unique())
+                unique_dates_sorted = np.sort(unique_dates)
+                latest_cohorts = unique_dates_sorted[-12:]
+                filtered_data = cohort_data[pd.to_datetime(cohort_data['cohort_month']).isin(latest_cohorts)]
+                pivot_index = 'cohort_month_str'
+
+            elif display_option == "Mêmes mois sur différentes années":
+                # Sélection du mois à afficher
+                selected_month = st.sidebar.selectbox(
+                    "Choisir un mois:",
+                    sorted(cohort_data['month_name'].unique()),
+                    index=0,
+                    key="selected_month_key"
+                )
+                filtered_data = cohort_data[cohort_data['month_name'] == selected_month]
+                pivot_index = 'cohort_month_str'
+
+            elif display_option == "Trimestriel":
+                # Ajouter trimestre aux données
+                cohort_data['quarter'] = pd.to_datetime(cohort_data['cohort_month']).dt.to_period('Q').astype(str)
+
+                # Sélection des trimestres à afficher
+                selected_quarters = st.sidebar.multiselect(
+                    "Sélectionner les trimestres:",
+                    sorted(cohort_data['quarter'].unique()),
+                    default=sorted(cohort_data['quarter'].unique())[-4:],  # Derniers 4 trimestres par défaut
+                    key="selected_quarters_key"
+                )
+                filtered_data = cohort_data[cohort_data['quarter'].isin(selected_quarters)]
+
+                # Agréger les données par trimestre
+                pivot_index = 'quarter'
+
+            elif display_option == "Semestriel":
+                # Ajouter semestre aux données
+                cohort_data['semester'] = pd.to_datetime(cohort_data['cohort_month']).dt.year.astype(str) + '-' + \
+                                        ((pd.to_datetime(cohort_data['cohort_month']).dt.month - 1) // 6 + 1).astype(str)
+
+                # Sélection des semestres à afficher
+                selected_semesters = st.sidebar.multiselect(
+                    "Sélectionner les semestres:",
+                    sorted(cohort_data['semester'].unique()),
+                    default=sorted(cohort_data['semester'].unique())[-4:],  # Derniers 4 semestres par défaut
+                    key="selected_semesters_key"
+                )
+                filtered_data = cohort_data[cohort_data['semester'].isin(selected_semesters)]
+
+                # Agréger les données par semestre
+                pivot_index = 'semester'
+
+            elif display_option == "Annuel":
+                # Sélection des années à afficher
+                selected_years = st.sidebar.multiselect(
+                    "Sélectionner les années:",
+                    sorted(cohort_data['year'].unique()),
+                    default=sorted(cohort_data['year'].unique())[-3:],  # Dernières 3 années par défaut
+                    key="selected_years_key"
+                )
+                filtered_data = cohort_data[cohort_data['year'].isin(selected_years)]
+
+                # Agréger les données par année
+                pivot_index = 'year'
+            else:
+                filtered_data = cohort_data
+                pivot_index = 'cohort_month_str'
+
+            # Préparation des données pour la heatmap selon l'option sélectionnée
+            if display_option in ["Trimestriel", "Semestriel", "Annuel"]:
+                # Pour la heatmap - Agréger les données par la période sélectionnée
+                agg_data = filtered_data.groupby([pivot_index, 'month_number'])['retention_rate'].mean().reset_index()
+
+                # Créer la table pivot pour la heatmap
+                heatmap_data = agg_data.pivot_table(
+                    index=pivot_index,
+                    columns='month_number',
+                    values='retention_rate',
+                    aggfunc='mean'
+                )
+            else:
+                # Utiliser les données filtrées sans agrégation supplémentaire pour la heatmap
+                heatmap_data = filtered_data.pivot_table(
+                    index='cohort_month_str',
+                    columns='month_number',
+                    values='retention_rate',
+                    aggfunc='mean'
+                )
+
+            # Garantir que l'index est toujours trié chronologiquement
+            if display_option == "Chronologie (12 dernières cohortes)":
+                # Corriger le tri des dates
+                cohort_order = pd.to_datetime(filtered_data['cohort_month'].unique())
+                cohort_order_sorted = np.sort(cohort_order)
+                cohort_order_str = [pd.to_datetime(d).strftime('%b %Y') for d in cohort_order_sorted]
+                heatmap_data = heatmap_data.reindex(cohort_order_str)
+
             # Créer une heatmap de rétention
             st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
             st.markdown("<h3>Heatmap de Rétention par Cohorte (%)</h3>", unsafe_allow_html=True)
-
-            # Préparation des données pour la heatmap
-            heatmap_data = cohort_data.pivot_table(
-                index='cohort_month_str',
-                columns='month_number',
-                values='retention_rate',
-                aggfunc='mean'
-            )
 
             # Création de la heatmap avec Plotly
             fig_heatmap = px.imshow(
                 heatmap_data,
                 labels=dict(x="Mois après acquisition", y="Cohorte", color="Taux de rétention (%)"),
-                x=heatmap_data.columns,
+                x=[f"M{i}" for i in heatmap_data.columns],
                 y=heatmap_data.index,
-                color_continuous_scale="Blues",
-                aspect="auto"
+                color_continuous_scale=[
+                    [0, "rgb(220, 220, 255)"],
+                    [0.2, "rgb(150, 150, 255)"],
+                    [0.4, "rgb(100, 100, 255)"],
+                    [0.6, "rgb(50, 50, 230)"],
+                    [0.8, "rgb(20, 20, 180)"],
+                    [1, "rgb(5, 5, 100)"]
+                ],
+                aspect="auto",
+                zmin=0,
+                zmax=100
             )
 
-            # Ajustement des annotations avec texte en noir pour toutes les valeurs
+            # Ajustement des annotations avec contraste adaptatif
             annotations = []
             for i in range(len(heatmap_data.index)):
                 for j in range(len(heatmap_data.columns)):
                     if not pd.isna(heatmap_data.iloc[i, j]):
+                        value = heatmap_data.iloc[i, j]
+                        text_color = "white" if value > 30 else "black"
                         annotations.append(dict(
                             x=j,
                             y=i,
-                            text=f"{heatmap_data.iloc[i, j]:.1f}%",
+                            text=f"{value:.1f}%",
                             showarrow=False,
                             font=dict(
-                                # Fixer la couleur du texte à noir pour toutes les valeurs
-                                color="black",
+                                color=text_color,
                                 size=10
                             )
                         ))
@@ -569,23 +691,48 @@ with layout_container:
             st.plotly_chart(fig_heatmap, use_container_width=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-            # Créer graphique de rétention par cohorte
-            st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
-            st.markdown("<h3>Courbes de Rétention par Cohorte</h3>", unsafe_allow_html=True)
-
             # Création du graphique en ligne
-            fig_retention = px.line(
-                cohort_data,
-                x='month_number',
-                y='retention_rate',
-                color='cohort_month_str',
-                labels={
-                    'month_number': 'Mois après acquisition',
-                    'retention_rate': 'Taux de rétention (%)',
-                    'cohort_month_str': 'Cohorte'
-                },
-                markers=True
-            )
+            st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
+            st.markdown("<h3>Taux de Rétention par Cohorte</h3>", unsafe_allow_html=True)
+
+            # Création du graphique en ligne avec les données filtrées
+            if display_option in ["Trimestriel", "Semestriel", "Annuel"]:
+                # Pour les affichages agrégés, créer une colonne de groupe pour la légende
+                group_col = 'quarter' if display_option == "Trimestriel" else 'semester' if display_option == "Semestriel" else 'year'
+                group_col_name = 'Trimestre' if display_option == "Trimestriel" else 'Semestre' if display_option == "Semestriel" else 'Année'
+
+                # Agréger les données pour le graphique en ligne
+                line_data = filtered_data.groupby([group_col, 'month_number']).agg({
+                    'retention_rate': 'mean',
+                    'avg_revenue_per_customer': 'mean'
+                }).reset_index()
+
+                fig_retention = px.line(
+                    line_data,
+                    x='month_number',
+                    y='retention_rate',
+                    color=group_col,
+                    labels={
+                        'month_number': 'Mois après acquisition',
+                        'retention_rate': 'Taux de rétention (%)',
+                        group_col: group_col_name
+                    },
+                    markers=True
+                )
+            else:
+                # Pour l'affichage standard par cohorte
+                fig_retention = px.line(
+                    filtered_data,
+                    x='month_number',
+                    y='retention_rate',
+                    color='cohort_month_str',
+                    labels={
+                        'month_number': 'Mois après acquisition',
+                        'retention_rate': 'Taux de rétention (%)',
+                        'cohort_month_str': 'Cohorte'
+                    },
+                    markers=True
+                )
 
             fig_retention.update_layout(
                 height=graph_height,
@@ -618,22 +765,39 @@ with layout_container:
             st.plotly_chart(fig_retention, use_container_width=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-            # Créer graphique de revenu moyen par client
+            # Créer graphique de revenu moyen par client avec les données filtrées
             st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
             st.markdown("<h3>Revenu Moyen par Client et par Cohorte</h3>", unsafe_allow_html=True)
 
-            fig_revenue = px.line(
-                cohort_data,
-                x='month_number',
-                y='avg_revenue_per_customer',
-                color='cohort_month_str',
-                labels={
-                    'month_number': 'Mois après acquisition',
-                    'avg_revenue_per_customer': 'Revenu moyen par client (R$)',
-                    'cohort_month_str': 'Cohorte'
-                },
-                markers=True
-            )
+            # Création du graphique de revenu moyen
+            if display_option in ["Trimestriel", "Semestriel", "Annuel"]:
+                # Utiliser les données déjà agrégées
+                fig_revenue = px.line(
+                    line_data,
+                    x='month_number',
+                    y='avg_revenue_per_customer',
+                    color=group_col,
+                    labels={
+                        'month_number': 'Mois après acquisition',
+                        'avg_revenue_per_customer': 'Revenu moyen par client (R$)',
+                        group_col: group_col_name
+                    },
+                    markers=True
+                )
+            else:
+                # Pour l'affichage standard par cohorte
+                fig_revenue = px.line(
+                    filtered_data,
+                    x='month_number',
+                    y='avg_revenue_per_customer',
+                    color='cohort_month_str',
+                    labels={
+                        'month_number': 'Mois après acquisition',
+                        'avg_revenue_per_customer': 'Revenu moyen par client (R$)',
+                        'cohort_month_str': 'Cohorte'
+                    },
+                    markers=True
+                )
 
             fig_revenue.update_layout(
                 height=graph_height,
@@ -677,31 +841,54 @@ with layout_container:
             st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
             st.markdown("<h3>Tableau de Synthèse des Cohortes</h3>", unsafe_allow_html=True)
 
-            # Préparation des données pour le tableau
-            cohort_summary = cohort_data.pivot_table(
-                index='cohort_month_str',
+            # Préparation des données pour le tableau en utilisant les filtres (filtered_data et pivot_index)
+            table_data = filtered_data.pivot_table(
+                index=pivot_index,  # Utilise la clé d'agrégation définie dans le sidebar
                 columns='month_number',
                 values='retention_rate',
                 aggfunc='mean'
             ).reset_index()
 
-            # Conserver les données numériques pour le style
-            numeric_df = cohort_summary.copy()
-            numeric_df.columns = ['Cohorte'] + [f'M+{i}' for i in numeric_df.columns[1:]]
+            # Renommer les colonnes pour un affichage plus clair : la première colonne correspond à la période filtrée
+            table_data.columns = [table_data.columns[0]] + [f'M+{i}' for i in table_data.columns[1:]]
 
-            # Formatage pour l'affichage
-            cohort_summary.columns = ['Cohorte'] + [f'M+{i}' for i in cohort_summary.columns[1:]]
+            # Dupliquer le DataFrame pour appliquer le style
+            numeric_df = table_data.copy()
 
-            # Appliquer le style au DataFrame avec texte noir
-            styled_df = numeric_df.style\
-                .background_gradient(subset=numeric_df.columns[1:], cmap="Blues")\
-                .format({col: "{:.2f}%" for col in numeric_df.columns[1:]})\
-                .set_properties(**{'color': 'black'})  # Assurer que le texte est noir
+            # Création du style du tableau
+            styled_df = (
+                numeric_df.style
+                # Masquer l'index Pandas (colonne de gauche)
+                .hide(axis="index")
+                # Définir le style du header (fond bleu, texte blanc, centrage)
+                .set_table_styles([
+                    {
+                        'selector': 'th',
+                        'props': [
+                            ('background-color', '#1e88e5'),
+                            ('color', 'white'),
+                            ('text-align', 'center')
+                        ]
+                    },
+                    {
+                        'selector': 'td',
+                        'props': [
+                            ('text-align', 'center')
+                        ]
+                    }
+                ], overwrite=False)
+                # Colorer la première colonne (celle des périodes) en gris clair avec texte noir
+                .set_properties(subset=[table_data.columns[0]], **{'background-color': '#f0f0f0', 'color': 'black'})
+                # Appliquer un gradient sur les colonnes numériques (M+0, M+1, etc.)
+                .background_gradient(subset=numeric_df.columns[1:], cmap="YlGnBu")
+                # Formater l’affichage en pourcentage avec 2 décimales
+                .format({col: "{:.2f}%" for col in numeric_df.columns[1:]})
+            )
 
-            # Générer le HTML
+            # Convertir le style en HTML
             html_table = styled_df.to_html()
 
-            # Ajouter le CSS pour le défilement
+            # CSS pour rendre le tableau défilant
             st.markdown("""
             <style>
             .scrollable-table {
@@ -711,30 +898,33 @@ with layout_container:
             }
             .scrollable-table table {
                 width: 100%;
-                color: black;
+                color: black; /* Couleur par défaut du texte */
             }
             .scrollable-table th {
-                color: black;
-                background-color: white;
+                color: white;
+                background-color: #1e88e5;
             }
             </style>
             """, unsafe_allow_html=True)
 
-            # Envelopper le tableau dans un div avec défilement
+            # Affichage du tableau dans un div scrollable
             st.markdown(f'<div class="scrollable-table">{html_table}</div>', unsafe_allow_html=True)
 
-            # Option de téléchargement
-            cohort_csv = cohort_data.to_csv(index=False)
+            # Option de téléchargement : export des données filtrées
+            filtered_csv = filtered_data.to_csv(index=False)
             st.download_button(
                 label="📥 Télécharger les données de cohortes (CSV)",
-                data=cohort_csv,
-                file_name="olist_cohort_analysis.csv",
+                data=filtered_csv,
+                file_name="olist_cohort_analysis_filtered.csv",
                 mime="text/csv",
-                help="Télécharger les données d'analyse de cohortes au format CSV"
+                help="Télécharger les données d'analyse de cohortes filtrées au format CSV"
             )
+
             st.markdown("</div>", unsafe_allow_html=True)
 
-            # Affichage des segments RFM
+
+
+           # Affichage des segments RFM
             st.markdown("<h2 class='sub-header'>Segmentation RFM des Clients</h2>", unsafe_allow_html=True)
 
             # Charger les données RFM
@@ -749,7 +939,8 @@ with layout_container:
                     rfm_data,
                     x='customer_segment',
                     y='customer_count',
-                    color='customer_segment',
+                    color='customer_count',  # Dégradé basé sur le nombre de clients
+                    color_continuous_scale=[[0, 'rgb(140,180,255)'], [1, 'rgb(0,50,150)']],  # Bleu plus clair pour min
                     text='percentage',
                     labels={
                         'customer_segment': 'Segment',
@@ -770,6 +961,7 @@ with layout_container:
                     font=dict(color="black"),
                     xaxis_tickangle=-45,
                     showlegend=False,
+                    coloraxis_showscale=False,  # Suppression de la colorbar
                     paper_bgcolor='white',
                     plot_bgcolor='white',
                     yaxis_gridcolor='lightgray',
@@ -779,12 +971,14 @@ with layout_container:
                     ),
                     yaxis=dict(
                         title_font_color="black",
-                        tickfont_color="black"
+                        tickfont_color="black",
+                        range=[0, max(rfm_data['customer_count']) * 1.2]  # Ajout de 20% d'espace en haut
                     )
                 )
 
                 st.plotly_chart(fig_segments, use_container_width=True)
                 st.markdown("</div>", unsafe_allow_html=True)
+
 
                 # Tableau des métriques RFM par segment
                 st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
@@ -822,32 +1016,32 @@ with layout_container:
                 # Conserver les données numériques pour le style
                 numeric_rfm = rfm_data.copy()
 
-                # Formater les colonnes pour l'affichage
+                # Formater certaines colonnes pour l'affichage dans le CSV (pour téléchargement)
                 display_rfm = rfm_data.copy()
                 display_rfm['avg_monetary_value'] = display_rfm['avg_monetary_value'].apply(lambda x: format_currency(x))
                 display_rfm['total_monetary_value'] = display_rfm['total_monetary_value'].apply(lambda x: format_currency(x))
                 display_rfm['percentage'] = display_rfm['percentage'].apply(lambda x: f"{x:.2f}%")
                 display_rfm['revenue_percentage'] = display_rfm['revenue_percentage'].apply(lambda x: f"{x:.2f}%")
 
-                # Renommer les colonnes pour l'affichage
-                display_rfm = display_rfm.rename(columns={
-                    'customer_segment': 'Segment',
-                    'customer_count': 'Nombre de clients',
-                    'percentage': '% des clients',
-                    'avg_recency_days': 'Récence moyenne (jours)',
-                    'avg_frequency': 'Fréquence moyenne',
-                    'avg_monetary_value': 'Valeur moyenne',
-                    'total_monetary_value': 'Valeur totale',
-                    'revenue_percentage': '% du revenu total'
-                })
-
-                # Appliquer le style au DataFrame avec texte noir
+                # Appliquer le style au DataFrame sans masquer l'index en utilisant hide_index()
+                # On applique un dégradé "Blues" sur toutes les colonnes numériques pour une palette uniforme
                 styled_rfm = numeric_rfm.style\
-                    .background_gradient(subset=['avg_recency_days'], cmap="Reds_r")\
-                    .background_gradient(subset=['avg_frequency'], cmap="Blues")\
-                    .background_gradient(subset=['avg_monetary_value'], cmap="Greens")\
-                    .background_gradient(subset=['total_monetary_value'], cmap="Purples")\
-                    .background_gradient(subset=['revenue_percentage'], cmap="RdYlGn")\
+                    .background_gradient(subset=[
+                        'customer_count',
+                        'percentage',
+                        'avg_recency_days',
+                        'avg_frequency',
+                        'avg_monetary_value',
+                        'total_monetary_value',
+                        'revenue_percentage'
+                    ], cmap="Blues")\
+                    .set_properties(**{'color': 'black'})\
+                    .set_table_styles([
+                        # Style des en-têtes : fond gris clair et texte noir
+                        {'selector': 'th', 'props': [('background-color', '#d3d3d3'), ('color', 'black'), ('padding', '8px'), ('text-align', 'center')]},
+                        # Style spécifique pour la colonne "Segment" (première colonne) : fond gris léger
+                        {'selector': 'td.col0', 'props': [('background-color', '#e6e6e6'), ('color', 'black'), ('padding', '8px'), ('text-align', 'center')]}
+                    ])\
                     .format({
                         'avg_recency_days': "{:.2f}",
                         'avg_frequency': "{:.2f}",
@@ -855,13 +1049,10 @@ with layout_container:
                         'total_monetary_value': "R$ {:.2f}",
                         'percentage': "{:.2f}%",
                         'revenue_percentage': "{:.2f}%"
-                    })\
-                    .set_properties(**{'color': 'black'})  # Assurer que le texte est noir
+                    })
 
-                # Générer le HTML
+                # Générer le HTML et renommer les en-têtes pour l'affichage en français
                 html_table = styled_rfm.to_html()
-
-                # Remplacer les en-têtes de colonnes avec les noms français
                 html_table = html_table.replace('>customer_segment<', '>Segment<')
                 html_table = html_table.replace('>customer_count<', '>Nombre de clients<')
                 html_table = html_table.replace('>percentage<', '>% des clients<')
@@ -871,9 +1062,15 @@ with layout_container:
                 html_table = html_table.replace('>total_monetary_value<', '>Valeur totale<')
                 html_table = html_table.replace('>revenue_percentage<', '>% du revenu total<')
 
-                # Ajouter le CSS pour le défilement et assurer le texte noir
+                # Ajouter le CSS pour masquer l'index et améliorer la lisibilité du tableau
                 st.markdown("""
                 <style>
+                /* Masquer l'index généré par Pandas (la première colonne d'en-tête et de cellules) */
+                table > thead > tr > th:first-child,
+                table > tbody > tr > th:first-child {
+                    display: none;
+                }
+                /* Conteneur défilable pour le tableau */
                 .scrollable-table {
                     height: 400px;
                     overflow-y: auto;
@@ -881,11 +1078,12 @@ with layout_container:
                 }
                 .scrollable-table table {
                     width: 100%;
+                    border-collapse: collapse;
                     color: black;
                 }
-                .scrollable-table th {
-                    color: black;
-                    background-color: white;
+                .scrollable-table th, .scrollable-table td {
+                    padding: 8px;
+                    text-align: center;
                 }
                 </style>
                 """, unsafe_allow_html=True)
@@ -904,15 +1102,21 @@ with layout_container:
                 )
                 st.markdown("</div>", unsafe_allow_html=True)
 
+
+
                 # Graphique des valeurs moyennes par segment
                 st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
                 st.markdown("<h3>Valeur monétaire moyenne par segment</h3>", unsafe_allow_html=True)
+
+                # Calcul de la valeur maximale pour ajuster l'axe y
+                max_value = rfm_data['avg_monetary_value'].max()
 
                 fig_monetary = px.bar(
                     rfm_data,
                     x='customer_segment',
                     y='avg_monetary_value',
-                    color='customer_segment',
+                    color='avg_monetary_value',  # Couleur basée sur la valeur
+                    color_continuous_scale=[[0, 'rgb(140,180,255)'], [1, 'rgb(0,50,150)']],  # Bleu ajusté pour éviter trop de clarté
                     text='avg_monetary_value',
                     labels={
                         'customer_segment': 'Segment',
@@ -932,11 +1136,13 @@ with layout_container:
                     font=dict(color="black"),
                     xaxis_tickangle=-45,
                     showlegend=False,
+                    coloraxis_showscale=False,  # Suppression de la colorbar
                     yaxis=dict(
                         title="Valeur moyenne (R$)",
                         title_font_color="black",
                         tickfont_color="black",
-                        gridcolor='lightgray'
+                        gridcolor='lightgray',
+                        range=[0, max_value * 1.2]  # Multiplication par 1.2 pour ajouter de l'espace
                     ),
                     xaxis=dict(
                         title_font_color="black",
@@ -946,7 +1152,7 @@ with layout_container:
                     plot_bgcolor='white'
                 )
 
-                # Formatage de l'axe y pour afficher les valeurs monétaires
+                # Formatage de l'axe y pour afficher le préfixe monétaire
                 fig_monetary.update_yaxes(
                     tickprefix="R$ ",
                     tickformat=",.2f",
@@ -955,6 +1161,8 @@ with layout_container:
 
                 st.plotly_chart(fig_monetary, use_container_width=True)
                 st.markdown("</div>", unsafe_allow_html=True)
+
+
 
                 # Graphique des mesures RFM normalisées
                 st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
