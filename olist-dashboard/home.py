@@ -11,12 +11,12 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 from utils.database import execute_query
 
-# Configuration de la page - modifiée pour maximiser l'espace
+# Configuration de la page - affichage de la sidebar par défaut
 st.set_page_config(
     page_title="Olist E-commerce Dashboard",
     page_icon="🛒",
     layout="wide",
-    initial_sidebar_state="collapsed"  # Réduit la sidebar par défaut pour maximiser l'espace
+    initial_sidebar_state="expanded"  # Sidebar affichée par défaut
 )
 
 # Ajout de CSS personnalisé - optimisé pour réduire les "boudins blancs" et améliorer la visibilité des titres
@@ -41,38 +41,17 @@ st.markdown("""
     }
 
     /* Carte pour les métriques avec couleurs différentes */
-    .metric-card-sales {
-        background-color: #1e88e5;
+    .metric-card-sales, .metric-card-revenue, .metric-card-average, .metric-card-delivery {
         border-radius: 10px;
         padding: 10px;
         box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
         color: white;
         margin-bottom: 8px;
     }
-    .metric-card-revenue {
-        background-color: #43a047;
-        border-radius: 10px;
-        padding: 10px;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-        color: white;
-        margin-bottom: 8px;
-    }
-    .metric-card-average {
-        background-color: #fb8c00;
-        border-radius: 10px;
-        padding: 10px;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-        color: white;
-        margin-bottom: 8px;
-    }
-    .metric-card-delivery {
-        background-color: #8e24aa;
-        border-radius: 10px;
-        padding: 10px;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-        color: white;
-        margin-bottom: 8px;
-    }
+    .metric-card-sales { background-color: #1e88e5; }
+    .metric-card-revenue { background-color: #43a047; }
+    .metric-card-average { background-color: #fb8c00; }
+    .metric-card-delivery { background-color: #8e24aa; }
 
     /* Suppression du style par défaut des métriques Streamlit */
     .metric-container {
@@ -231,23 +210,9 @@ else:
 states = ["Tous"] + ["SP", "RJ", "MG", "RS", "PR", "SC", "BA", "DF", "GO", "ES"]
 selected_state = st.sidebar.selectbox("État", states)
 
-# Contrôle de densité pour l'affichage - NOUVEAU
-display_density = st.sidebar.select_slider(
-    "Densité d'affichage",
-    options=["Compact", "Normal", "Détaillé"],
-    value="Compact"
-)
-
-# Définir les hauteurs en fonction de la densité d'affichage
-if display_density == "Compact":
-    graph_height = 200  # Réduit pour être plus compact
-    map_height = 260
-elif display_density == "Normal":
-    graph_height = 250
-    map_height = 320
-else:
-    graph_height = 300
-    map_height = 380
+# Pour ce dashboard, la densité d'affichage est désormais en mode "précis" par défaut
+graph_height = 300
+map_height = 380
 
 # Paramètres pour les requêtes SQL
 params = {
@@ -270,15 +235,15 @@ with layout_container:
     if not kpi_data.empty:
         metrics = kpi_data.iloc[0]
 
-        # Affichage des métriques principales avec des couleurs différentes
+        # Affichage des métriques principales avec des couleurs différentes et textes en gras et plus gros
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
             st.markdown(
                 f"""
                 <div class='metric-card-sales'>
-                    <h3 style='margin-bottom:2px;font-size:0.9rem;'>Commandes</h3>
-                    <h2 style='margin:0;font-size:1.4rem;'>{int(metrics['order_count']):,}</h2>
+                    <h3 style='margin-bottom:2px;font-size:1rem; font-weight:bold;'>Commandes</h3>
+                    <h2 style='margin:0;font-size:2rem; font-weight:bold;'>{int(metrics['order_count']):,}</h2>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -288,8 +253,8 @@ with layout_container:
             st.markdown(
                 f"""
                 <div class='metric-card-revenue'>
-                    <h3 style='margin-bottom:2px;font-size:0.9rem;'>Chiffre d'affaires</h3>
-                    <h2 style='margin:0;font-size:1.4rem;'>{format_currency(metrics['total_revenue'])}</h2>
+                    <h3 style='margin-bottom:2px;font-size:1rem; font-weight:bold;'>Chiffre d'affaires</h3>
+                    <h2 style='margin:0;font-size:2rem; font-weight:bold;'>{format_currency(metrics['total_revenue'])}</h2>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -299,8 +264,8 @@ with layout_container:
             st.markdown(
                 f"""
                 <div class='metric-card-average'>
-                    <h3 style='margin-bottom:2px;font-size:0.9rem;'>Panier moyen</h3>
-                    <h2 style='margin:0;font-size:1.4rem;'>{format_currency(metrics['avg_order'])}</h2>
+                    <h3 style='margin-bottom:2px;font-size:1rem; font-weight:bold;'>Panier moyen</h3>
+                    <h2 style='margin:0;font-size:2rem; font-weight:bold;'>{format_currency(metrics['avg_order'])}</h2>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -310,8 +275,8 @@ with layout_container:
             st.markdown(
                 f"""
                 <div class='metric-card-delivery'>
-                    <h3 style='margin-bottom:2px;font-size:0.9rem;'>Délai moyen (jours)</h3>
-                    <h2 style='margin:0;font-size:1.4rem;'>{metrics['avg_delivery_days']:.1f}</h2>
+                    <h3 style='margin-bottom:2px;font-size:1rem; font-weight:bold;'>Délai moyen (jours)</h3>
+                    <h2 style='margin:0;font-size:2rem; font-weight:bold;'>{metrics['avg_delivery_days']:.1f}</h2>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -340,15 +305,9 @@ with layout_container:
             title = "Évolution mensuelle du nombre de commandes"
             y_title = "Nombre de commandes"
         elif trend_tab == "CA total":
-            # Calculer le CA total si ce n'est pas déjà dans le dataframe
             if "total_revenue" not in sales_trend.columns:
-                # Supposons que nous avons les données pour calculer le CA
-                # Si ce n'est pas le cas, nous devrons modifier la requête SQL
-                # Exemple fictif: utiliser les données de payment ou order_items
-                # Cette partie devrait être adaptée selon la structure de votre base de données
                 average_order_value = 150  # Valeur fictive - à remplacer par données réelles
                 sales_trend["total_revenue"] = sales_trend["number_of_orders"] * average_order_value
-
             y_column = "total_revenue"
             title = "Évolution mensuelle du chiffre d'affaires"
             y_title = "Chiffre d'affaires (R$)"
@@ -357,7 +316,7 @@ with layout_container:
             title = "Évolution mensuelle du nombre de clients"
             y_title = "Nombre de clients"
 
-        # Créer le graphique avec marges réduites
+        # Créer le graphique avec marges par défaut
         fig_trend = px.line(
             sales_trend,
             x="month",
@@ -365,13 +324,12 @@ with layout_container:
             labels={"month": "Date", y_column: y_title}
         )
 
-        # Mise à jour du layout pour s'assurer que tout le texte est en noir et optimiser l'espace
         fig_trend.update_layout(
             plot_bgcolor="white",
             paper_bgcolor="white",
             font=dict(
                 family="Arial, sans-serif",
-                size=9,  # Taille réduite
+                size=9,
                 color="black"
             ),
             xaxis=dict(
@@ -379,18 +337,18 @@ with layout_container:
                     text="Date",
                     font=dict(color="black", size=9)
                 ),
-                tickfont=dict(color="black", size=8)  # Taille réduite
+                tickfont=dict(color="black", size=8)
             ),
             yaxis=dict(
                 title=dict(
                     text=y_title,
                     font=dict(color="black", size=9)
                 ),
-                tickfont=dict(color="black", size=8)  # Taille réduite
+                tickfont=dict(color="black", size=8)
             ),
-            legend=dict(font=dict(color="black", size=8)),  # Taille réduite
+            legend=dict(font=dict(color="black", size=8)),
             height=graph_height,
-            margin=dict(l=20, r=20, t=10, b=20)  # Marges réduites
+            margin=dict(l=20, r=20, t=10, b=20)
         )
 
         st.plotly_chart(fig_trend, use_container_width=True)
@@ -403,7 +361,6 @@ with layout_container:
     with col1:
         st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
         st.markdown("<h3 style='color: white;'>Top 10 Catégories par Revenu</h3>", unsafe_allow_html=True)
-        # Top 10 catégories
         top_categories = execute_query("top_categories.sql", params)
         if not top_categories.empty:
             fig_cat = px.bar(
@@ -419,7 +376,7 @@ with layout_container:
                 paper_bgcolor="white",
                 font=dict(
                     family="Arial, sans-serif",
-                    size=9,  # Taille réduite
+                    size=9,
                     color="black"
                 ),
                 xaxis=dict(
@@ -427,17 +384,14 @@ with layout_container:
                         text="Chiffre d'affaires (R$)",
                         font=dict(color="black", size=9)
                     ),
-                    tickfont=dict(color="black", size=8)  # Taille réduite
+                    tickfont=dict(color="black", size=8)
                 ),
                 yaxis=dict(
                     categoryorder='total ascending',
-                    title=dict(
-                        text="",  # Supprimé pour gagner de l'espace
-                        font=dict(color="black", size=9)
-                    ),
-                    tickfont=dict(color="black", size=8)  # Taille réduite
+                    title=dict(text="", font=dict(color="black", size=9)),
+                    tickfont=dict(color="black", size=8)
                 ),
-                margin=dict(l=20, r=10, t=5, b=20)  # Marges réduites davantage
+                margin=dict(l=20, r=10, t=5, b=20)
             )
             st.plotly_chart(fig_cat, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
@@ -445,7 +399,6 @@ with layout_container:
     with col2:
         st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
         st.markdown("<h3 style='color: white;'>Répartition des avis clients</h3>", unsafe_allow_html=True)
-        # Répartition des avis clients
         review_data = execute_query("reviews_distribution.sql", params)
         if not review_data.empty:
             fig_review = px.bar(
@@ -462,7 +415,7 @@ with layout_container:
                 paper_bgcolor="white",
                 font=dict(
                     family="Arial, sans-serif",
-                    size=9,  # Taille réduite
+                    size=9,
                     color="black"
                 ),
                 xaxis=dict(
@@ -470,23 +423,23 @@ with layout_container:
                         text="Note",
                         font=dict(color="black", size=9)
                     ),
-                    tickfont=dict(color="black", size=8)  # Taille réduite
+                    tickfont=dict(color="black", size=8)
                 ),
                 yaxis=dict(
                     title=dict(
                         text="Nombre d'avis",
                         font=dict(color="black", size=9)
                     ),
-                    tickfont=dict(color="black", size=8)  # Taille réduite
+                    tickfont=dict(color="black", size=8)
                 ),
                 coloraxis_colorbar=dict(
                     title=dict(
                         text="Note",
                         font=dict(color="black", size=9)
                     ),
-                    tickfont=dict(color="black", size=8)  # Taille réduite
+                    tickfont=dict(color="black", size=8)
                 ),
-                margin=dict(l=20, r=10, t=5, b=20)  # Marges réduites davantage
+                margin=dict(l=20, r=10, t=5, b=20)
             )
             st.plotly_chart(fig_review, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
@@ -495,10 +448,8 @@ with layout_container:
     st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
     st.markdown("<h3 style='color: white;'>Distribution des commandes par état</h3>", unsafe_allow_html=True)
 
-    # Distribution géographique
     geo_data = execute_query("geo_distribution.sql", params)
     if not geo_data.empty:
-        # Coordonnées approximatives des états brésiliens pour centrer les marqueurs
         state_coordinates = {
             "SP": [-23.5505, -46.6333], "RJ": [-22.9068, -43.1729],
             "MG": [-19.9167, -43.9345], "RS": [-30.0346, -51.2177],
@@ -516,11 +467,9 @@ with layout_container:
             "RR": [2.8199, -60.6714]
         }
 
-        # Ajouter les coordonnées aux données
         geo_data["lat"] = geo_data["customer_state"].apply(lambda x: state_coordinates.get(x, [0, 0])[0])
         geo_data["lon"] = geo_data["customer_state"].apply(lambda x: state_coordinates.get(x, [0, 0])[1])
 
-        # Créer une carte avec des marqueurs de taille proportionnelle
         fig = px.scatter_mapbox(
             geo_data,
             lat="lat",
@@ -543,11 +492,11 @@ with layout_container:
             ),
             font=dict(
                 color="black",
-                size=8  # Taille réduite
+                size=8
             ),
             hoverlabel=dict(
                 font_color="white",
-                font_size=9  # Taille réduite
+                font_size=9
             )
         )
 
