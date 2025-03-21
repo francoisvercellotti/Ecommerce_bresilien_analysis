@@ -11,13 +11,22 @@ import plotly.graph_objects as go
 from utils.database import execute_query, execute_raw_query
 from datetime import datetime, timedelta
 
+
 # Configuration de la page
 st.set_page_config(
     page_title="Olist - Analyse des Catégories",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="expanded"  # Barre latérale visible par défaut
+    initial_sidebar_state="expanded"
 )
+
+st.markdown("""
+    <div style="background: linear-gradient(90deg, #4e8df5, #83b3f7); padding:15px; border-radius:10px; margin-bottom:30px">
+        <h1 style="color:white; text-align:center; font-size:48px; font-weight:bold">
+            ANALYSE DES CATÉGORIES DE PRODUITS
+        </h1>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Ajout de CSS personnalisé
 st.markdown("""
@@ -215,28 +224,12 @@ def load_date_range():
 graph_height = 300
 heatmap_height = 600
 
-# Titre principal
-st.markdown("<h1 class='main-header'>📊 Analyse des Catégories de Produits</h1>", unsafe_allow_html=True)
+
 
 
 # Filtres dans la sidebar
 with st.sidebar:
     st.markdown("<h2 class='sub-header'>Filtres</h2>", unsafe_allow_html=True)
-
-    # Filtre de métrique
-    metric_options = {
-        "total_revenue": "Revenu total",
-        "order_count": "Nombre de commandes",
-        "avg_price": "Prix moyen",
-        "avg_review_score": "Note moyenne",
-        "avg_freight_value": "Frais de port moyens"
-    }
-
-    selected_metric = st.selectbox(
-        "Métrique à analyser",
-        options=list(metric_options.keys()),
-        format_func=lambda x: metric_options[x]
-    )
 
     # Filtre de période
     st.markdown("<h3 class='sub-header'>Période</h3>", unsafe_allow_html=True)
@@ -324,8 +317,71 @@ with st.sidebar:
         st.error(f"Erreur lors du chargement des catégories: {e}")
         selected_categories = []
 
+# Conteneur pour le dashboard principal
 # Création d'une layout compact pour tout le dashboard
 layout_container = st.container()
+
+with layout_container:
+    # Métriques générales pour les catégories
+    col1, col2, col3, col4 = st.columns(4)
+
+    try:
+        # Charger les données avec les filtres appliqués
+        category_performance = load_category_performance(sql_start_date, sql_end_date)
+
+        # Appliquer le filtre de catégories
+        if selected_categories and len(selected_categories) > 0:
+            category_performance = category_performance[category_performance["category_name"].isin(selected_categories)]
+
+        if not category_performance.empty:
+            with col1:
+                st.markdown(
+                    f"""
+                    <div class='metric-card-categories' style="background-color: #1e88e5; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Nombre de catégories</h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{len(category_performance)}</h2>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col2:
+                st.markdown(
+                    f"""
+                    <div class='metric-card-revenue' style="background-color: #43a047; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Revenu total</h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">R$ {category_performance['total_revenue'].sum():,.0f}</h2>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col3:
+                st.markdown(
+                    f"""
+                    <div class='metric-card-orders' style="background-color: #fb8c00; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Commandes totales</h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{category_performance['order_count'].sum():,}</h2>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col4:
+                st.markdown(
+                    f"""
+                    <div class='metric-card-rating' style="background-color: #8e24aa; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
+                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Note moyenne</h3>
+                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{category_performance['avg_review_score'].mean():.2f}/5</h2>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+        else:
+            st.warning("Aucune donnée de catégorie disponible pour les filtres sélectionnés.")
+    except Exception as e:
+        st.error(f"Erreur lors du chargement des métriques des catégories: {e}")
+
 
 with layout_container:
     # Tableau de performance des catégories
@@ -370,39 +426,31 @@ with layout_container:
             for col in ["total_revenue", "avg_price", "avg_freight_value", "avg_review_score"]:
                 numeric_df[col] = numeric_df[col].round(1)
 
-            # Création d'une copie pour l'affichage avec formatage
-            display_df = numeric_df.copy()
-            display_df["total_revenue"] = display_df["total_revenue"].apply(lambda x: f"R$ {x:.1f}")
-            display_df["avg_price"] = display_df["avg_price"].apply(lambda x: f"R$ {x:.1f}")
-            display_df["avg_freight_value"] = display_df["avg_freight_value"].apply(lambda x: f"R$ {x:.1f}")
-
-            # Renommage des colonnes pour l'affichage
-            display_df = display_df.rename(columns={
-                "category_name": "Catégorie",
-                "order_count": "Nombre de commandes",
-                "total_revenue": "Revenu total",
-                "avg_price": "Prix moyen",
-                "avg_review_score": "Note moyenne",
-                "avg_freight_value": "Frais de port moyens"
-            })
-
-            # Appliquer le style au DataFrame numérique
+            # Appliquer le style au DataFrame avec une seule palette de couleur (Bleu)
             styled_df = numeric_df.style\
-                .background_gradient(subset=["order_count"], cmap="Greens")\
-                .background_gradient(subset=["total_revenue"], cmap="Blues")\
-                .background_gradient(subset=["avg_price"], cmap="Purples")\
-                .background_gradient(subset=["avg_review_score"], cmap="RdYlGn")\
-                .background_gradient(subset=["avg_freight_value"], cmap="RdYlGn_r")\
+                .background_gradient(subset=["order_count", "total_revenue", "avg_price", "avg_review_score", "avg_freight_value"], cmap="Blues")\
+                .applymap(lambda _: "background-color: lightgrey; color: black;", subset=["category_name"])\
                 .format({
                     "total_revenue": "R$ {:.1f}",
                     "avg_price": "R$ {:.1f}",
                     "avg_freight_value": "R$ {:.1f}",
                     "avg_review_score": "{:.1f}"
-                })\
-                .set_properties(**{'font-weight': 'bold'})
+                })
 
-            # Générer le HTML
-            html_table = styled_df.to_html()
+            # Appliquer un fond bleu clair à l'entête
+            styled_df = styled_df.set_table_styles([
+                {
+                    'selector': 'th',  # Sélectionner la ligne d'entête
+                    'props': [
+                        ('background-color', '#1e88e5'),  # Bleu clair pour la ligne d'entête
+                        ('color', 'white'),  # Texte blanc pour l'entête
+                        ('text-align', 'center')  # Centrer le texte de l'entête
+                    ]
+                }
+            ])
+
+            # Générer le HTML sans index
+            html_table = styled_df.hide(axis="index").to_html()
 
             # Remplacer les en-têtes de colonnes avec les noms français
             html_table = html_table.replace('>category_name<', '>Catégorie<')
@@ -443,41 +491,30 @@ with layout_container:
     except Exception as e:
         st.error(f"Erreur lors du chargement des performances des catégories: {e}")
     st.markdown("</div>", unsafe_allow_html=True)
-# Graphiques de performance des catégories
+
+    # Graphiques de performance des catégories
     col1, col2 = st.columns(2)
 
     with col1:
         st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
+        st.markdown("<h3>Top 10 des catégories par Revenu total</h3>", unsafe_allow_html=True)
 
-        # Créer un placeholder pour le titre
-        title_placeholder = st.empty()
-
-        # Sélecteur pour choisir la métrique
-        graph_metric = st.selectbox(
-            "Choisir la métrique pour le Top 10",
-            options=list(metric_options.keys()),
-            format_func=lambda x: metric_options[x],
-            key="graph_metric_selector"
-        )
-
-        # Mettre à jour le placeholder avec le titre calculé en fonction de la sélection
-        title_placeholder.markdown(
-            f"<h3>Top 10 des catégories par {metric_options[graph_metric]}</h3>",
-            unsafe_allow_html=True
-        )
+        # Définir une métrique fixe pour le graphique (maintenant que nous avons supprimé le sélecteur)
+        default_metric = "total_revenue"
+        metric_label = "Revenu total"
 
         try:
             if not category_performance.empty:
-                # Tri et sélection des 10 meilleures catégories selon la métrique choisie par l'utilisateur
-                top_categories = category_performance.sort_values(by=graph_metric, ascending=False).head(10)
+                # Tri et sélection des 10 meilleures catégories selon la métrique fixe
+                top_categories = category_performance.sort_values(by=default_metric, ascending=False).head(10)
 
                 fig_cat = px.bar(
                     top_categories,
-                    x=graph_metric,
+                    x=default_metric,
                     y="category_name",
                     orientation='h',
-                    labels={"category_name": "Catégorie", graph_metric: metric_options[graph_metric]},
-                    color=graph_metric,
+                    labels={"category_name": "Catégorie", default_metric: metric_label},
+                    color=default_metric,
                     color_continuous_scale="Viridis"
                 )
 
@@ -487,7 +524,7 @@ with layout_container:
                     paper_bgcolor="white",
                     font=dict(family="Arial, sans-serif", size=10, color="black"),
                     xaxis=dict(
-                        title=dict(text=metric_options[graph_metric], font=dict(color="black", size=10)),
+                        title=dict(text=metric_label, font=dict(color="black", size=10)),
                         tickfont=dict(color="black", size=10)
                     ),
                     yaxis=dict(
@@ -517,11 +554,9 @@ with layout_container:
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-
     with col2:
         st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
         st.markdown("<h3>Distribution des prix par catégorie</h3>", unsafe_allow_html=True)
-        st.markdown('<div style="height: 84px;"></div>', unsafe_allow_html=True)
         try:
             # Charger les données avec les filtres appliqués
             price_distribution = load_price_distribution(sql_start_date, sql_end_date, selected_categories)
@@ -529,11 +564,11 @@ with layout_container:
             if not price_distribution.empty:
                 # Sélection des catégories à montrer (si trop nombreuses)
                 if len(selected_categories) > 10:
-                    # Si trop de catégories, prendre les top catégories par performance
+                    # Si trop de catégories, prendre les top catégories par revenu total
                     if not category_performance.empty:
-                        top_categories_list = category_performance.sort_values(by=selected_metric, ascending=False).head(10)["category_name"].tolist()
+                        top_categories_list = category_performance.sort_values(by="total_revenue", ascending=False).head(10)["category_name"].tolist()
                         price_data = price_distribution[price_distribution["category_name"].isin(top_categories_list)]
-                        title = f"Distribution des prix (Top 10 catégories par {metric_options[selected_metric]})"
+                        title = "Distribution des prix (Top 10 catégories par revenu)"
                     else:
                         price_data = price_distribution.sample(min(len(price_distribution), 1000))  # Limiter pour des raisons de performance
                         title = "Distribution des prix (échantillon)"
@@ -586,9 +621,9 @@ with layout_container:
 
             # Si trop de catégories pour visualisation claire, limiter
             if len(category_trend["category_name"].unique()) > 10:
-                # Utiliser les 10 meilleures catégories selon la métrique sélectionnée
+                # Utiliser les 10 meilleures catégories selon le revenu total
                 if not category_performance.empty:
-                    top_categories_list = category_performance.sort_values(by=selected_metric, ascending=False).head(10)["category_name"].tolist()
+                    top_categories_list = category_performance.sort_values(by="total_revenue", ascending=False).head(10)["category_name"].tolist()
                     trend_data = category_trend[category_trend["category_name"].isin(top_categories_list)]
                 else:
                     # Ou prendre les 10 premières par ordre alphabétique
@@ -699,7 +734,7 @@ with layout_container:
             # Explication compacte du graphique
             st.markdown("""
             <p style="font-size:0.8rem; color:black;">
-            Cette heatmap montre la fréquence d'achat croisé entre catégories. Les valeurs plus foncées indiquent des associations plus fortes.
+            Cette heatmap montre la fréquence d'achat croisé entre catégories. Les valeurs plus claires indiquent des associations plus fortes.
             </p>
             """, unsafe_allow_html=True)
         else:
@@ -746,7 +781,13 @@ with layout_container:
     except Exception as e:
         st.error(f"Erreur lors de l'affichage des insights: {e}")
 
-    # Pied de page
-    st.markdown("<div class='footer'>", unsafe_allow_html=True)
-    st.markdown("*Dashboard créé avec Streamlit et SQLAlchemy - Basé sur le dataset Olist*")
-    st.markdown("</div>", unsafe_allow_html=True)
+    # Footer avec information sur les données
+    st.markdown("""
+    <div class="footer">
+        <p>Dashboard d'analyse des vendeurs Olist - Données issues de la base de données Olist</p>
+        <p>Période analysée: {start} - {end}</p>
+    </div>
+    """.format(
+        start=start_date.strftime('%d/%m/%Y') if start_date else "Début des données",
+        end=end_date.strftime('%d/%m/%Y') if end_date else "Fin des données"
+    ), unsafe_allow_html=True)

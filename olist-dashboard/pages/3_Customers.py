@@ -19,6 +19,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"  # Barre latérale visible par défaut
 )
 
+st.markdown("""
+    <div style="background: linear-gradient(90deg, #4e8df5, #83b3f7); padding:15px; border-radius:10px; margin-bottom:30px">
+        <h1 style="color:white; text-align:center; font-size:48px; font-weight:bold">
+            ANALYSE DES CLIENTS
+        </h1>
+    </div>
+    """, unsafe_allow_html=True)
+
 # Ajout de CSS personnalisé
 st.markdown("""
 <style>
@@ -444,9 +452,6 @@ def load_date_range():
 # Constantes pour les graphiques
 graph_height = 300
 heatmap_height = 600
-
-# Titre principal
-st.markdown("<h1 class='main-header'>👥 Analyse des Clients Olist</h1>", unsafe_allow_html=True)
 
 # Filtres dans la sidebar
 with st.sidebar:

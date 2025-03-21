@@ -20,6 +20,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"  # Barre latérale visible par défaut
 )
 
+st.markdown("""
+    <div style="background: linear-gradient(90deg, #4e8df5, #83b3f7); padding:15px; border-radius:10px; margin-bottom:30px">
+        <h1 style="color:white; text-align:center; font-size:48px; font-weight:bold">
+            PRÉVISIONS ET ANALYSES PREDICTIVES
+        </h1>
+    </div>
+    """, unsafe_allow_html=True)
+
 # Ajout de CSS personnalisé
 st.markdown("""
 <style>
@@ -34,12 +42,16 @@ st.markdown("""
         font-size: 2rem;
         color: white !important;
         margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid white;
     }
     .sub-header {
-        font-size: 1.25rem;
-        color: white !important;
-        margin-bottom: 0.3rem;
-    }
+    font-size: 1.25rem;
+    color: white !important;
+    margin-bottom: 0.3rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 8px solid white;
+}
 
     /* Carte pour les métriques avec couleurs différentes */
     .metric-card {
@@ -231,8 +243,6 @@ def load_satisfaction_predictor():
 graph_height = 300
 heatmap_height = 500
 
-# Titre principal
-st.markdown("<h1 class='main-header'>📊 Prévisions et Analyses Prédictives</h1>", unsafe_allow_html=True)
 
 # Filtres dans la sidebar
 with st.sidebar:
@@ -272,10 +282,11 @@ with st.sidebar:
 layout_container = st.container()
 
 with layout_container:
-    # Section 1: Prévisions pour la date spécifiée
-    st.markdown("<h2 class='sub-header'>Prévisions pour la date spécifiée</h2>", unsafe_allow_html=True)
+
 
     # Carte de métriques pour la prévision de date
+    # Section 1: Prévisions pour la date spécifiée
+    st.markdown("<h2 class='sub-header'>Prévisions pour la date spécifiée</h2>", unsafe_allow_html=True)
     try:
         sales_prediction = predict_sales_for_date(forecast_date)
 
@@ -285,7 +296,7 @@ with layout_container:
             with col1:
                 st.markdown(
                     f"""
-                    <div class='metric-card-sales' style="background-color: #1e88e5; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
+                    <div class='metric-card-sales' style="background-color: #1e88e5; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-top: 20px;margin-bottom: 8px;">
                         <h3 style="margin-bottom:2px; font-size:1.5rem; font-weight:300;">Revenu prévu</h3>
                         <h2 style="margin:0; font-size:2.5rem; font-weight:300;">{format_currency(sales_prediction['predicted_revenue'].iloc[0])}</h2>
                     </div>
@@ -296,7 +307,7 @@ with layout_container:
             with col2:
                 st.markdown(
                     f"""
-                    <div class='metric-card-orders' style="background-color: #fb8c00; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
+                    <div class='metric-card-orders' style="background-color: #fb8c00; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white;margin-top: 20px; margin-bottom: 8px;">
                         <h3 style="margin-bottom:2px; font-size:1.5rem; font-weight:300;">Commandes prévues</h3>
                         <h2 style="margin:0; font-size:2.5rem; font-weight:300;">{sales_prediction['predicted_orders'].iloc[0]:.0f}</h2>
                     </div>
@@ -310,7 +321,7 @@ with layout_container:
 
                 st.markdown(
                     f"""
-                    <div class='metric-card-confidence' style="background-color: {confidence_color}; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
+                    <div class='metric-card-confidence' style="background-color: {confidence_color}; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-top: 20px;margin-bottom: 8px;">
                         <h3 style="margin-bottom:2px; font-size:1.5rem; font-weight:300;">Niveau de confiance</h3>
                         <h2 style="margin:0; font-size:2.5rem; font-weight:300;">{confidence}</h2>
                     </div>
@@ -320,16 +331,16 @@ with layout_container:
 
             # Afficher les détails de la prévision
             st.markdown(f"""
-            <div style="background-color: #1e3a5f; border-radius: 6px; padding: 10px; margin-top: 10px;">
-                <p>Prévision pour le <strong>{forecast_date.strftime('%d/%m/%Y')}</strong> (Jour {forecast_date.weekday()} de la semaine)</p>
-                <p>Cette prévision est basée sur les tendances historiques pour des jours similaires.</p>
+            <div style="background-color: #1e3a5f; border-radius: 10px; padding: 20px; margin-top: 15px; margin-top: 20px;margin-bottom: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                <h3 style="color: white; font-size: 24px; margin-bottom: 15px;">Prévision pour le <span style="font-weight: bold;">{forecast_date.strftime('%d/%m/%Y')}</span></h3>
+                <p style="color: white; font-size: 18px; margin-bottom: 10px;">Jour {forecast_date.weekday()} de la semaine</p>
+                <p style="color: #a8c7ff; font-size: 16px; font-style: italic;">Cette prévision est basée sur les tendances historiques pour des jours similaires.</p>
             </div>
             """, unsafe_allow_html=True)
         else:
-            st.warning("Aucune prévision disponible pour la date sélectionnée.")
+                st.warning("Aucune prévision disponible pour la date sélectionnée.")
     except Exception as e:
-        st.error(f"Erreur lors du chargement des prévisions: {e}")
-
+                st.error(f"Erreur lors du chargement des prévisions: {e}")
     # Section 2: Projection des ventes
     st.markdown("<h2 class='sub-header'>Projection des ventes</h2>", unsafe_allow_html=True)
 
@@ -338,17 +349,15 @@ with layout_container:
 
         if not projected_sales.empty:
             # Afficher la projection
-            st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
-            st.markdown("<h3>Projection des ventes</h3>", unsafe_allow_html=True)
 
             month_name = projected_sales['projected_month'].iloc[0].strip()
             projected_revenue = projected_sales['projected_revenue'].iloc[0]
 
             st.markdown(f"""
-            <div style="padding: 20px; text-align: center;">
-                <h3>Projection pour {month_name} {target_year}</h3>
-                <h1 style="font-size: 3rem; color: #1e88e5;">{format_currency(projected_revenue)}</h1>
-                <p>Basée sur un revenu mensuel de base de {format_currency(base_revenue)} ajusté par les indices saisonniers.</p>
+            <div style="background-color: #2196f3; border-radius: 10px; padding: 25px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin: 15px 0;">
+                <h3 style="font-size: 22px; color: white; margin-bottom: 15px;">Projection pour {month_name} {target_year}</h3>
+                <h1 style="font-size: 3.5rem; color: white; margin: 20px 0; font-weight: bold; text-shadow: 1px 1px 3px rgba(0,0,0,0.3);">{format_currency(projected_revenue)}</h1>
+                <p style="font-size: 16px; color: #e3f2fd; margin-top: 15px;">Basée sur un revenu mensuel de base de <span style="font-weight: bold;">{format_currency(base_revenue)}</span> ajusté par les indices saisonniers.</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -368,7 +377,7 @@ if show_sales_pattern:
 
         if not sales_pattern.empty:
             # Créer un heatmap des tendances de ventes
-            st.markdown("<div class='graph-container' style='background-color: white; padding: 15px; border-radius: 10px;'>", unsafe_allow_html=True)
+
             st.markdown("<h3 style='color: white;'>Heatmap des tendances de ventes</h3>", unsafe_allow_html=True)
 
             # Préparer les données pour le heatmap
@@ -416,6 +425,8 @@ if show_sales_pattern:
             st.plotly_chart(fig, use_container_width=True)
 
             # Afficher les statistiques par jour de la semaine
+            st.markdown("<h3 style='color: white;'>Statistiques par jour de la semaine</h3>", unsafe_allow_html=True)
+
             day_stats = sales_pattern.groupby('day_of_week').agg({
                 'avg_revenue_by_day': 'mean',
                 'avg_orders_by_day': 'mean'
@@ -490,7 +501,7 @@ if show_seasonal_trends:
         seasonal_trends = load_seasonal_trends()
 
         if not seasonal_trends.empty:
-            st.markdown("<div class='graph-container' style='background-color: white; padding: 15px; border-radius: 10px;'>", unsafe_allow_html=True)
+
             st.markdown("<h3 style='color: white;'>Indices saisonniers par mois</h3>", unsafe_allow_html=True)
 
             # Copier et renommer les colonnes
@@ -596,7 +607,7 @@ if show_churn_risk:
         churn_risk = load_customer_churn_risk()
 
         if not churn_risk.empty:
-            st.markdown("<div class='graph-container' style='background-color: white; padding: 15px; border-radius: 10px;'>", unsafe_allow_html=True)
+
             st.markdown("<h3 style='color: white;'>Analyse du risque d'attrition</h3>", unsafe_allow_html=True)
 
             # Créer un graphique du risque d'attrition
@@ -735,7 +746,7 @@ if show_satisfaction_predictors:
         satisfaction_predictors = load_satisfaction_predictor()
 
         if not satisfaction_predictors.empty:
-            st.markdown("<div class='graph-container' style='background-color: white; padding: 15px; border-radius: 10px;'>", unsafe_allow_html=True)
+
             st.markdown("<h3 style='color: white;'>Corélation de la satisfaction client</h3>", unsafe_allow_html=True)
 
             # Sélectionner les 10 catégories avec le plus grand nombre de commandes
@@ -798,6 +809,8 @@ if show_satisfaction_predictors:
             st.plotly_chart(fig, use_container_width=True)
 
             # Afficher les données tabulaires
+            st.markdown("<h3 style='color: white;'>Résumé tabulaires</h3>", unsafe_allow_html=True)
+
             styled_predictors = satisfaction_predictors.head(10).copy()
 
             styled_predictors = styled_predictors.rename(columns={

@@ -19,6 +19,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"  # Sidebar affichée par défaut
 )
 
+st.markdown("""
+    <div style="background: linear-gradient(90deg, #4e8df5, #83b3f7); padding:15px; border-radius:10px; margin-bottom:30px">
+        <h1 style="color:white; text-align:center; font-size:48px; font-weight:bold">
+            DASHBOARD E-COMMERCE OLIST
+        </h1>
+    </div>
+    """, unsafe_allow_html=True)
+
 # Ajout de CSS personnalisé - optimisé pour réduire les "boudins blancs" et améliorer la visibilité des titres
 st.markdown("""
 <style>
@@ -165,8 +173,6 @@ st.markdown("""
 def format_currency(value):
     return f"R$ {value:,.2f}"
 
-# En-tête - plus compact
-st.markdown("<h1 class='main-header'>🛒 Dashboard Olist E-commerce</h1>", unsafe_allow_html=True)
 
 # Filtres dans la barre latérale
 st.sidebar.title("Filtres")
@@ -235,54 +241,53 @@ with layout_container:
     if not kpi_data.empty:
         metrics = kpi_data.iloc[0]
 
-        # Affichage des métriques principales avec des couleurs différentes et textes en gras et plus gros
-        col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4 = st.columns(4)
 
-        with col1:
-            st.markdown(
-                f"""
-                <div class='metric-card-sales'>
-                    <h3 style='margin-bottom:2px;font-size:1rem; font-weight:bold;'>Commandes</h3>
-                    <h2 style='margin:0;font-size:2rem; font-weight:bold;'>{int(metrics['order_count']):,}</h2>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+    with col1:
+        st.markdown(
+            f"""
+            <div style="background-color: #1e88e5; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
+                <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Commandes</h3>
+                <h2 style="margin:0; font-size:3rem; font-weight:300;">{int(metrics['order_count']):,}</h2>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-        with col2:
-            st.markdown(
-                f"""
-                <div class='metric-card-revenue'>
-                    <h3 style='margin-bottom:2px;font-size:1rem; font-weight:bold;'>Chiffre d'affaires</h3>
-                    <h2 style='margin:0;font-size:2rem; font-weight:bold;'>{format_currency(metrics['total_revenue'])}</h2>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+    with col2:
+        st.markdown(
+            f"""
+            <div style="background-color: #43a047; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
+                <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Chiffre d'affaires</h3>
+                <h2 style="margin:0; font-size:3rem; font-weight:300;">{int(metrics['total_revenue']):,}</h2>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-        with col3:
-            st.markdown(
-                f"""
-                <div class='metric-card-average'>
-                    <h3 style='margin-bottom:2px;font-size:1rem; font-weight:bold;'>Panier moyen</h3>
-                    <h2 style='margin:0;font-size:2rem; font-weight:bold;'>{format_currency(metrics['avg_order'])}</h2>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
 
-        with col4:
-            st.markdown(
-                f"""
-                <div class='metric-card-delivery'>
-                    <h3 style='margin-bottom:2px;font-size:1rem; font-weight:bold;'>Délai moyen (jours)</h3>
-                    <h2 style='margin:0;font-size:2rem; font-weight:bold;'>{metrics['avg_delivery_days']:.1f}</h2>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-    else:
-        st.error("Impossible de charger les KPIs. Vérifiez votre connexion à la base de données.")
+    with col3:
+        st.markdown(
+            f"""
+            <div style="background-color: #fb8c00; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
+                <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Panier moyen</h3>
+                <h2 style="margin:0; font-size:3rem; font-weight:300;">{format_currency(metrics['avg_order'])}</h2>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    with col4:
+        st.markdown(
+            f"""
+            <div style="background-color: #8e24aa; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
+                <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Délai moyen (jours)</h3>
+                <h2 style="margin:0; font-size:3rem; font-weight:300;">{metrics['avg_delivery_days']:.1f}</h2>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
 
     # Organisation des graphiques dans un layout compact
     st.markdown("<h2 class='sub-header'>📊 Analyses principales</h2>", unsafe_allow_html=True)

@@ -19,6 +19,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"  # Barre latérale visible par défaut
 )
 
+st.markdown("""
+    <div style="background: linear-gradient(90deg, #4e8df5, #83b3f7); padding:15px; border-radius:10px; margin-bottom:30px">
+        <h1 style="color:white; text-align:center; font-size:48px; font-weight:bold">
+            ANALYSE DES VENDEURS
+        </h1>
+    </div>
+    """, unsafe_allow_html=True)
+
 # Ajout de CSS personnalisé
 st.markdown("""
 <style>
@@ -314,8 +322,6 @@ def load_date_range():
 graph_height = 300
 heatmap_height = 600
 
-# Titre principal
-st.markdown("<h1 class='main-header'>🛒 Analyse des Vendeurs Olist</h1>", unsafe_allow_html=True)
 
 # Filtres dans la sidebar
 with st.sidebar:
@@ -532,14 +538,6 @@ with layout_container:
             # Dupliquer le DataFrame pour conserver les valeurs numériques pour le style
             numeric_df = display_df.copy()
 
-            # Création d'une copie pour l'affichage avec formatage
-            display_df_formatted = display_df.copy()
-            display_df_formatted["total_revenue"] = display_df_formatted["total_revenue"].apply(lambda x: f"R$ {x:.2f}")
-            display_df_formatted["average_price"] = display_df_formatted["average_price"].apply(lambda x: f"R$ {x:.2f}")
-            display_df_formatted["avg_review"] = display_df_formatted["avg_review"].apply(lambda x: f"{x:.2f}")
-            display_df_formatted["on_time_delivery_percentage"] = display_df_formatted["on_time_delivery_percentage"].apply(lambda x: f"{x:.1f}%")
-            display_df_formatted["positive_review_percentage"] = display_df_formatted["positive_review_percentage"].apply(lambda x: f"{x:.1f}%")
-
             # Sélectionner les colonnes à afficher
             columns_to_display = [
                 "seller_id", "total_orders", "total_revenue", "unique_products",
@@ -547,27 +545,14 @@ with layout_container:
                 "performance_category"
             ]
 
-            display_df_formatted = display_df_formatted[columns_to_display]
+            numeric_df = numeric_df[columns_to_display]
 
-            # Renommage des colonnes pour l'affichage
-            display_df_formatted = display_df_formatted.rename(columns={
-                "seller_id": "ID Vendeur",
-                "total_orders": "Commandes",
-                "total_revenue": "Revenu total",
-                "unique_products": "Produits uniques",
-                "avg_review": "Note moyenne",
-                "on_time_delivery_percentage": "% Livraison à temps",
-                "positive_review_percentage": "% Avis positifs",
-                "performance_category": "Catégorie"
-            })
-
-            # Appliquer le style au DataFrame
-            styled_df = numeric_df[columns_to_display].style\
-                .background_gradient(subset=["total_orders"], cmap="Blues")\
-                .background_gradient(subset=["total_revenue"], cmap="Greens")\
-                .background_gradient(subset=["avg_review"], cmap="RdYlGn")\
-                .background_gradient(subset=["on_time_delivery_percentage"], cmap="RdYlGn")\
-                .background_gradient(subset=["positive_review_percentage"], cmap="RdYlGn")\
+            # Appliquer le style au DataFrame avec une seule palette de couleur (Bleu)
+            styled_df = numeric_df.style\
+                .background_gradient(subset=["total_orders", "total_revenue", "avg_review",
+                                            "on_time_delivery_percentage", "positive_review_percentage"], cmap="Blues")\
+                .applymap(lambda _: "background-color: lightgrey;", subset=["seller_id", "unique_products", "performance_category"])\
+                .applymap(lambda _: "color: black;", subset=["seller_id", "unique_products", "performance_category"])\
                 .format({
                     "total_revenue": "R$ {:.2f}",
                     "avg_review": "{:.2f}",
@@ -575,8 +560,20 @@ with layout_container:
                     "positive_review_percentage": "{:.1f}%"
                 })
 
-            # Générer le HTML
-            html_table = styled_df.to_html()
+            # Appliquer un fond bleu clair à l'entête
+            styled_df = styled_df.set_table_styles([
+                {
+                    'selector': 'th',  # Sélectionner la ligne d'entête
+                    'props': [
+                        ('background-color', '#1e88e5'),  # Bleu clair pour la ligne d'entête
+                        ('color', 'white'),  # Texte blanc pour l'entête
+                        ('text-align', 'center')  # Centrer le texte de l'entête
+                    ]
+                }
+            ])
+
+            # Générer le HTML sans index
+            html_table = styled_df.hide(axis="index").to_html()
 
             # Remplacer les en-têtes de colonnes avec les noms français
             html_table = html_table.replace('>seller_id<', '>ID Vendeur<')
@@ -763,7 +760,7 @@ with layout_container:
             st.error(f"Erreur lors de l'affichage du box plot: {e}")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # Graphiques de tendances et distribution
+   # Graphiques de tendances et distribution
     col1, col2 = st.columns(2)
 
     with col1:
@@ -815,10 +812,18 @@ with layout_container:
                         title=dict(text="Nombre de vendeurs", font=dict(color="black", size=10)),
                         tickfont=dict(color="black", size=10)
                     ),
+                    legend=dict(
+                        font=dict(color="black", size=10),
+                        title=dict(text="Catégorie de performance", font=dict(color="black", size=10))
+                    ),
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=10),
                     bargap=0.1
                 )
+
+                # Assurer que les annotations et textes à l'intérieur du graphique sont en noir
+                for annotation in fig.layout.annotations:
+                    annotation.font.color = "black"
 
                 st.plotly_chart(fig, use_container_width=True)
             else:
@@ -900,9 +905,17 @@ with layout_container:
                         }[scatter_y], font=dict(color="black", size=10)),
                         tickfont=dict(color="black", size=10)
                     ),
+                    legend=dict(
+                        font=dict(color="black", size=10),
+                        title=dict(text="Catégorie de performance", font=dict(color="black", size=10))
+                    ),
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=10)
                 )
+
+                # Assurer que les annotations et textes à l'intérieur du graphique sont en noir
+                for annotation in fig.layout.annotations:
+                    annotation.font.color = "black"
 
                 st.plotly_chart(fig, use_container_width=True)
             else:
@@ -1029,19 +1042,32 @@ with layout_container:
                         "total_revenue", "avg_review"
                     ]
 
-                    # Appliquer le style au DataFrame
-                    styled_df = numeric_df[columns_to_display].style\
-                        .background_gradient(subset=["seller_count"], cmap="Blues")\
-                        .background_gradient(subset=["total_orders"], cmap="Blues")\
-                        .background_gradient(subset=["total_revenue"], cmap="Greens")\
-                        .background_gradient(subset=["avg_review"], cmap="RdYlGn")\
+                    numeric_df = numeric_df[columns_to_display]
+
+                    # Appliquer le style au DataFrame avec une seule palette de couleur (Bleu)
+                    styled_df = numeric_df.style\
+                        .background_gradient(subset=["seller_count", "total_orders", "total_revenue", "avg_review"], cmap="Blues")\
+                        .applymap(lambda _: "background-color: lightgrey;", subset=["seller_state"])\
+                        .applymap(lambda _: "color: black;", subset=["seller_state"])\
                         .format({
                             "total_revenue": "R$ {:.2f}",
                             "avg_review": "{:.2f}"
                         })
 
-                    # Générer le HTML
-                    html_table = styled_df.to_html()
+                    # Appliquer un fond bleu clair à l'entête
+                    styled_df = styled_df.set_table_styles([
+                        {
+                            'selector': 'th',  # Sélectionner la ligne d'entête
+                            'props': [
+                                ('background-color', '#1e88e5'),  # Bleu clair pour la ligne d'entête
+                                ('color', 'white'),  # Texte blanc pour l'entête
+                                ('text-align', 'center')  # Centrer le texte de l'entête
+                            ]
+                        }
+                    ])
+
+                    # Générer le HTML sans index
+                    html_table = styled_df.hide(axis="index").to_html()
 
                     # Remplacer les en-têtes de colonnes avec les noms français
                     html_table = html_table.replace('>seller_state<', '>État<')
@@ -1234,7 +1260,7 @@ with layout_container:
 
     # Analyse par catégorie de produit
     st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
-    st.markdown("<h3>Performance par catégorie de produit</h3>", unsafe_allow_html=True)
+    st.markdown("<h3>Product Category Performance</h3>", unsafe_allow_html=True)
     try:
         # Charger les données de catégories
         category_data = load_seller_categories(sql_start_date, sql_end_date)
@@ -1243,8 +1269,32 @@ with layout_container:
             # Filtrer pour n'inclure que les vendeurs dans notre sélection
             category_data = category_data[category_data["seller_id"].isin(seller_data["seller_id"])]
 
+            # Dictionnaire de traduction français-anglais pour les catégories
+            category_translations = {
+                "produits_pour_maison": "home_products",
+                "meubles_decoration": "furniture_decor",
+                "informatique_accessoires": "computers_accessories",
+                "telephonie": "telephony",
+                "electromenager": "appliances",
+                "sport_loisirs": "sports_leisure",
+                "sante_beaute": "health_beauty",
+                "cuisine_arts_table": "kitchen_dining",
+                "outils_bricolage": "tools_home_improvement",
+                "jouets": "toys",
+                "mode_accessoires": "fashion_accessories",
+                "articles_bebes": "baby_products",
+                "livres_papeterie": "books_stationery",
+                "jardin_exterieur": "garden_outdoor",
+                "animalerie": "pet_supplies"
+                # Ajoutez d'autres catégories au besoin
+            }
+
+            # Traduire les noms de catégories
+            category_data["product_category_name_en"] = category_data["product_category_name"].map(
+                category_translations).fillna(category_data["product_category_name"])
+
             # Agréger par catégorie
-            category_agg = category_data.groupby("product_category_name").agg({
+            category_agg = category_data.groupby("product_category_name_en").agg({
                 "order_count": "sum",
                 "total_revenue": "sum",
                 "avg_review": "mean",
@@ -1262,23 +1312,23 @@ with layout_container:
             top_categories = category_agg.head(15)
 
             # Créer deux onglets pour les graphiques de catégories
-            cat_tabs = st.tabs(["Revenu par catégorie", "Nombre de vendeurs par catégorie"])
+            cat_tabs = st.tabs(["Revenue by Category", "Number of Sellers by Category"])
 
             with cat_tabs[0]:
                 # Graphique de revenu par catégorie
                 fig = px.bar(
                     top_categories,
-                    x="product_category_name",
+                    x="product_category_name_en",
                     y="total_revenue",
                     color="avg_review",
                     color_continuous_scale="RdYlGn",
                     hover_data=["order_count", "seller_count", "avg_review"],
                     labels={
-                        "product_category_name": "Catégorie de produit",
-                        "total_revenue": "Revenu total (R$)",
-                        "order_count": "Nombre de commandes",
-                        "seller_count": "Nombre de vendeurs",
-                        "avg_review": "Note moyenne"
+                        "product_category_name_en": "Product Category",
+                        "total_revenue": "Total Revenue (R$)",
+                        "order_count": "Number of Orders",
+                        "seller_count": "Number of Sellers",
+                        "avg_review": "Average Rating"
                     }
                 )
 
@@ -1287,23 +1337,29 @@ with layout_container:
                     paper_bgcolor="white",
                     font=dict(family="Arial, sans-serif", size=10, color="black"),
                     xaxis=dict(
-                        title=dict(text="Catégorie de produit", font=dict(color="black", size=10)),
+                        title=dict(text="Product Category", font=dict(color="black", size=10)),
                         tickfont=dict(color="black", size=10),
                         tickangle=45
                     ),
                     yaxis=dict(
-                        title=dict(text="Revenu total (R$)", font=dict(color="black", size=10)),
+                        title=dict(text="Total Revenue (R$)", font=dict(color="black", size=10)),
                         tickfont=dict(color="black", size=10)
                     ),
                     coloraxis_colorbar=dict(
-                        title="Note moyenne",
+                        title="Average Rating",
                         tickvals=[1, 2, 3, 4, 5],
                         tickfont=dict(color="black", size=10),
-                        title_font=dict(color="black", size=10)
+                        title_font=dict(color="black", size=10),
+                        title_side="right"
                     ),
                     height=graph_height,
-                    margin=dict(l=10, r=10, t=30, b=30)
+                    margin=dict(l=10, r=10, t=30, b=30),
+                    legend=dict(font=dict(color="black", size=10))
                 )
+
+                # S'assurer que toutes les annotations et textes sont en noir
+                for annotation in fig.layout.annotations:
+                    annotation.font.color = "black"
 
                 st.plotly_chart(fig, use_container_width=True)
 
@@ -1311,17 +1367,17 @@ with layout_container:
                 # Graphique du nombre de vendeurs par catégorie
                 fig = px.bar(
                     top_categories,
-                    x="product_category_name",
+                    x="product_category_name_en",
                     y="seller_count",
                     color="avg_review",
                     color_continuous_scale="RdYlGn",
                     hover_data=["order_count", "total_revenue", "avg_review"],
                     labels={
-                        "product_category_name": "Catégorie de produit",
-                        "seller_count": "Nombre de vendeurs",
-                        "order_count": "Nombre de commandes",
-                        "total_revenue": "Revenu total (R$)",
-                        "avg_review": "Note moyenne"
+                        "product_category_name_en": "Product Category",
+                        "seller_count": "Number of Sellers",
+                        "order_count": "Number of Orders",
+                        "total_revenue": "Total Revenue (R$)",
+                        "avg_review": "Average Rating"
                     }
                 )
 
@@ -1330,29 +1386,35 @@ with layout_container:
                     paper_bgcolor="white",
                     font=dict(family="Arial, sans-serif", size=10, color="black"),
                     xaxis=dict(
-                        title=dict(text="Catégorie de produit", font=dict(color="black", size=10)),
+                        title=dict(text="Product Category", font=dict(color="black", size=10)),
                         tickfont=dict(color="black", size=10),
                         tickangle=45
                     ),
                     yaxis=dict(
-                        title=dict(text="Nombre de vendeurs", font=dict(color="black", size=10)),
+                        title=dict(text="Number of Sellers", font=dict(color="black", size=10)),
                         tickfont=dict(color="black", size=10)
                     ),
                     coloraxis_colorbar=dict(
-                        title="Note moyenne",
+                        title="Average Rating",
                         tickvals=[1, 2, 3, 4, 5],
                         tickfont=dict(color="black", size=10),
-                        title_font=dict(color="black", size=10)
+                        title_font=dict(color="black", size=10),
+                        title_side="right"
                     ),
                     height=graph_height,
-                    margin=dict(l=10, r=10, t=30, b=30)
+                    margin=dict(l=10, r=10, t=30, b=30),
+                    legend=dict(font=dict(color="black", size=10))
                 )
+
+                # S'assurer que toutes les annotations et textes sont en noir
+                for annotation in fig.layout.annotations:
+                    annotation.font.color = "black"
 
                 st.plotly_chart(fig, use_container_width=True)
         else:
-            st.warning("Aucune donnée de catégorie disponible pour les filtres sélectionnés.")
+            st.warning("No category data available for the selected filters.")
     except Exception as e:
-        st.error(f"Erreur lors de l'affichage des données de catégorie: {e}")
+        st.error(f"Error while displaying category data: {e}")
     st.markdown("</div>", unsafe_allow_html=True)
 
     # Footer avec information sur les données
