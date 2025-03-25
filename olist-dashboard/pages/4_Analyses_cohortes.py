@@ -164,6 +164,48 @@ st.markdown("""
     .js-plotly-plot .legend text {
         fill: black !important;
     }
+/* Stylisation de la sidebar avec fond blanc et texte bleu */
+    .css-1d391kg, .css-1wrcr25, .css-12oz5g7, [data-testid="stSidebar"] {
+        background-color: white !important;
+    }
+
+    /* Texte et éléments de la sidebar en bleu */
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] .stSelectbox label,
+    [data-testid="stSidebar"] .stMultiSelect label,
+    [data-testid="stSidebar"] .stDateInput label,
+    [data-testid="stSidebar"] span {
+        color: #0d2b45 !important;
+        font-size: 1.1rem !important;
+        font-weight: 500 !important;
+    }
+
+    /* Police plus grande pour les éléments de la sidebar */
+    [data-testid="stSidebar"] .stSelectbox,
+    [data-testid="stSidebar"] .stMultiSelect,
+    [data-testid="stSidebar"] .stDateInput {
+        font-size: 1.1rem !important;
+    }
+
+    /* Nouveau style pour les titres de section - plus élégant */
+    .filter-section-title {
+        color: #0d2b45 !important;
+        font-weight: bold;
+        font-size: 1.2rem;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #0d2b45;
+        text-transform: uppercase;
+    }
+
+    /* Style pour les sections de filtres */
+    .filter-section {
+        margin-bottom: 25px;
+        padding-bottom: 5px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -347,10 +389,11 @@ heatmap_height = 600
 
 # Filtres dans la sidebar
 with st.sidebar:
-    st.markdown("<h2 class='sub-header'>Filtres</h2>", unsafe_allow_html=True)
+    st.markdown('<h2 style="text-align: center; padding-bottom: 10px;">FILTRES</h2>', unsafe_allow_html=True)
 
-    # Filtre de période
-    st.markdown("<h3 class='sub-header'>Période</h3>", unsafe_allow_html=True)
+    # Section PÉRIODE
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    st.markdown('<div class="filter-section-title">PÉRIODE</div>', unsafe_allow_html=True)
     try:
         date_range = load_date_range()
         if not date_range.empty:
@@ -417,7 +460,8 @@ with st.sidebar:
     )
 
     # Choix des cohortes à afficher
-    st.markdown("<h3 class='sub-header'>Filtres avancés</h3>", unsafe_allow_html=True)
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    st.markdown('<div class="filter-section-title">Cohortes</div>', unsafe_allow_html=True)
 
     show_all_cohorts = st.checkbox("Afficher toutes les cohortes", value=False)
 
@@ -635,7 +679,7 @@ with layout_container:
             fig_heatmap = px.imshow(
                 heatmap_data,
                 labels=dict(x="Mois après acquisition", y="Cohorte", color="Taux de rétention (%)"),
-                x=[f"M{i}" for i in heatmap_data.columns],
+                x=list(heatmap_data.columns),
                 y=heatmap_data.index,
                 color_continuous_scale=[
                     [0, "rgb(220, 220, 255)"],
@@ -664,7 +708,7 @@ with layout_container:
                             showarrow=False,
                             font=dict(
                                 color=text_color,
-                                size=10
+                                size=12
                             )
                         ))
 
@@ -835,8 +879,8 @@ with layout_container:
 
             # Formatage de l'axe y pour afficher les valeurs monétaires avec texte noir
             fig_revenue.update_yaxes(
-                tickprefix="R$ ",
-                tickformat=",.2f",
+                tickprefix=" ",
+                tickformat=",.0f",
                 tickfont=dict(color="black")
             )
 
@@ -856,16 +900,17 @@ with layout_container:
             ).reset_index()
 
             # Renommer les colonnes pour un affichage plus clair : la première colonne correspond à la période filtrée
-            table_data.columns = [table_data.columns[0]] + [f'M+{i}' for i in table_data.columns[1:]]
+            table_data.columns = ["Cohorte"] + [f'M+{int(i)}' for i in table_data.columns[1:]]
 
             # Dupliquer le DataFrame pour appliquer le style
             numeric_df = table_data.copy()
+            # Remplacer d'abord les NaN par 0 dans le DataFrame
+            numeric_df = numeric_df.fillna(0)
 
             # Création du style du tableau
             styled_df = (
                 numeric_df.style
-                # Masquer l'index Pandas (colonne de gauche)
-                .hide(axis="index")
+
                 # Définir le style du header (fond bleu, texte blanc, centrage)
                 .set_table_styles([
                     {
@@ -927,7 +972,6 @@ with layout_container:
             )
 
             st.markdown("</div>", unsafe_allow_html=True)
-
 
 
            # Affichage des segments RFM
@@ -1132,7 +1176,7 @@ with layout_container:
                 )
 
                 fig_monetary.update_traces(
-                    texttemplate='R$ %{text:.2f}',
+                    texttemplate='%{text:.0f}',
                     textposition='outside',
                     textfont=dict(color="black")
                 )
@@ -1160,8 +1204,8 @@ with layout_container:
 
                 # Formatage de l'axe y pour afficher le préfixe monétaire
                 fig_monetary.update_yaxes(
-                    tickprefix="R$ ",
-                    tickformat=",.2f",
+                    tickprefix=" ",
+                    tickformat=",.0f",
                     tickfont=dict(color="black")
                 )
 
@@ -1213,17 +1257,18 @@ with layout_container:
                         bgcolor="white"
                     ),
                     showlegend=True,
-                    height=450,
+                    height=550,
                     margin=dict(l=50, r=20, t=20, b=50),
                     font=dict(color="black"),
                     legend=dict(
-                        orientation='h',
-                        yanchor='bottom',
-                        y=-0.1,
-                        xanchor='center',
-                        x=0.5,
-                        font=dict(color="black")
-                    ),
+                    orientation='h',
+                    yanchor='bottom',
+                    y=-0.1,
+                    xanchor='left',
+                    x=0,
+                    font=dict(color="black")
+                )
+                ,
                     paper_bgcolor='white'
                 )
 

@@ -158,6 +158,48 @@ st.markdown("""
     .dataframe td {
         padding: 3px !important;
     }
+/* Stylisation de la sidebar avec fond blanc et texte bleu */
+    .css-1d391kg, .css-1wrcr25, .css-12oz5g7, [data-testid="stSidebar"] {
+        background-color: white !important;
+    }
+
+    /* Texte et éléments de la sidebar en bleu */
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] .stSelectbox label,
+    [data-testid="stSidebar"] .stMultiSelect label,
+    [data-testid="stSidebar"] .stDateInput label,
+    [data-testid="stSidebar"] span {
+        color: #0d2b45 !important;
+        font-size: 1.1rem !important;
+        font-weight: 500 !important;
+    }
+
+    /* Police plus grande pour les éléments de la sidebar */
+    [data-testid="stSidebar"] .stSelectbox,
+    [data-testid="stSidebar"] .stMultiSelect,
+    [data-testid="stSidebar"] .stDateInput {
+        font-size: 1.1rem !important;
+    }
+
+    /* Nouveau style pour les titres de section - plus élégant */
+    .filter-section-title {
+        color: #0d2b45 !important;
+        font-weight: bold;
+        font-size: 1.2rem;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #0d2b45;
+        text-transform: uppercase;
+    }
+
+    /* Style pour les sections de filtres */
+    .filter-section {
+        margin-bottom: 25px;
+        padding-bottom: 5px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -413,16 +455,17 @@ def load_customer_categories(start_date=None, end_date=None):
     WITH customer_category_preferences AS (
         SELECT
             c.customer_unique_id,
-            p.product_category_name,
+            pc.product_category_name_english AS product_category_name,
             COUNT(DISTINCT o.order_id) AS category_orders,
             SUM(oi.price) AS category_spend
         FROM orders o
         JOIN order_items oi ON o.order_id = oi.order_id
         JOIN products p ON oi.product_id = p.product_id
         JOIN customers c ON o.customer_id = c.customer_id
-        WHERE o.order_status = 'delivered' AND p.product_category_name IS NOT NULL
+        JOIN product_categories pc ON p.product_category_name = pc.product_category_name
+        WHERE o.order_status = 'delivered' AND pc.product_category_name_english IS NOT NULL
         {date_filter}
-        GROUP BY c.customer_unique_id, p.product_category_name
+        GROUP BY c.customer_unique_id, pc.product_category_name_english
     )
     SELECT
         product_category_name,
@@ -450,15 +493,16 @@ def load_date_range():
     return execute_query("date_range.sql")
 
 # Constantes pour les graphiques
-graph_height = 300
+graph_height = 400
 heatmap_height = 600
 
 # Filtres dans la sidebar
 with st.sidebar:
-    st.markdown("<h2 class='sub-header'>Filtres</h2>", unsafe_allow_html=True)
+    st.markdown('<h2 style="text-align: center; padding-bottom: 10px;">FILTRES</h2>', unsafe_allow_html=True)
 
-    # Filtre de période
-    st.markdown("<h3 class='sub-header'>Période</h3>", unsafe_allow_html=True)
+    # Section PÉRIODE
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    st.markdown('<div class="filter-section-title">PÉRIODE</div>', unsafe_allow_html=True)
     try:
         date_range = load_date_range()
         if not date_range.empty:
@@ -516,7 +560,8 @@ with st.sidebar:
     sql_end_date = end_date.strftime('%Y-%m-%d') if end_date else None
 
     # Filtre de segment client
-    st.markdown("<h3 class='sub-header'>Filtres de segment</h3>", unsafe_allow_html=True)
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    st.markdown('<div class="filter-section-title">Catégories</div>', unsafe_allow_html=True)
     customer_segments = ["Premium", "High Value", "Medium Value", "Standard"]
     selected_segments = st.multiselect(
         "Segments clients",
@@ -737,7 +782,7 @@ with layout_container:
                     segments_data,
                     values="customer_count",
                     names="customer_segment",
-                    title="Répartition des clients par segment",
+                    title=" ",
                     color="customer_segment",
                     color_discrete_map={
                         "Premium": "#1a9850",
@@ -753,7 +798,7 @@ with layout_container:
                     font=dict(family="Arial, sans-serif", size=14, color="black"),  # Taille augmentée et couleur noire
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=10),
-                    legend=dict(font=dict(size=14, color="black"))  # Légende en noir et plus grande
+                    legend=dict(font=dict(size=16, color="black"))  # Légende en noir et plus grande
                 )
 
                 # Texte du titre en noir et plus grand
@@ -776,7 +821,7 @@ with layout_container:
                     segments_data,
                     x="customer_segment",
                     y="total_annual_value",
-                    title="Valeur annuelle totale par segment",
+                    title=" ",
                     color="customer_segment",
                     color_discrete_map={
                         "Premium": "#1a9850",
@@ -790,24 +835,36 @@ with layout_container:
                 fig.update_layout(
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=14, color="black"),  # Taille augmentée et couleur noire
+                    font=dict(family="Arial, sans-serif", size=14, color="black"),
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=10),
                     xaxis_title="Segment client",
                     yaxis_title="Valeur annuelle totale (R$)",
-                    legend=dict(font=dict(size=14, color="black")),  # Légende en noir et plus grande
-                    title_font=dict(size=16, color="black")  # Titre en noir et plus grand
+                    title_font=dict(size=16, color="black"),
+                    showlegend=False  # Suppression de la légende
                 )
 
                 # Mise à jour des axes avec texte plus grand et noir
-                fig.update_xaxes(title_font=dict(size=14, color="black"), tickfont=dict(size=12, color="black"))
-                fig.update_yaxes(title_font=dict(size=14, color="black"), tickfont=dict(size=12, color="black"))
+                fig.update_xaxes(
+                    title_font=dict(size=14, color="black"),
+                    tickfont=dict(size=12, color="black")
+                )
+
+                # Configuration de l'axe y : grille horizontale grise et pas de chiffres
+                fig.update_yaxes(
+                    title_font=dict(size=14, color="black"),
+                    tickfont=dict(size=14, color="black"),
+                    showticklabels=False,  # Suppression des chiffres sur l'axe y
+                    gridcolor='lightgray',  # Couleur grise pour la grille
+                    gridwidth=0.5,  # Épaisseur de la grille
+                    showgrid=True  # Affichage de la grille
+                )
 
                 # Formater les montants pour l'affichage
                 fig.update_traces(
-                    texttemplate='R$ %{y:.2s}',
+                    texttemplate='%{y:.2s}',
                     textposition='outside',
-                    textfont=dict(size=12, color="black")  # Texte des valeurs en noir et plus grand
+                    textfont=dict(size=12, color="black")
                 )
 
                 st.plotly_chart(fig, use_container_width=True)
@@ -844,7 +901,7 @@ with layout_container:
                     purchase_frequency_data,
                     x="purchase_frequency",
                     y="customer_count",
-                    title="Distribution de la fréquence d'achat",
+                    title=" ",
                     color="purchase_frequency",
                     color_discrete_map={
                         "One-time": "#fee08b",
@@ -858,18 +915,30 @@ with layout_container:
                 fig.update_layout(
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=14, color="black"),  # Taille augmentée et couleur noire
+                    font=dict(family="Arial, sans-serif", size=14, color="black"),
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=10),
                     xaxis_title="Fréquence d'achat",
                     yaxis_title="Nombre de clients",
-                    legend=dict(font=dict(size=14, color="black")),  # Légende en noir et plus grande
-                    title_font=dict(size=16, color="black")  # Titre en noir et plus grand
+                    title_font=dict(size=16, color="black"),
+                    showlegend=False  # Suppression de la légende
                 )
 
                 # Mise à jour des axes avec texte plus grand et noir
-                fig.update_xaxes(title_font=dict(size=14, color="black"), tickfont=dict(size=12, color="black"))
-                fig.update_yaxes(title_font=dict(size=14, color="black"), tickfont=dict(size=12, color="black"))
+                fig.update_xaxes(
+                    title_font=dict(size=14, color="black"),
+                    tickfont=dict(size=14, color="black")
+                )
+
+                # Configuration de l'axe y avec grille horizontale grise et sans chiffres
+                fig.update_yaxes(
+                    title_font=dict(size=14, color="black"),
+                    tickfont=dict(size=14, color="black"),
+                    showticklabels=False,  # Suppression des chiffres sur l'axe y
+                    gridcolor='lightgray',  # Couleur grise pour la grille
+                    gridwidth=0.5,  # Épaisseur de la grille
+                    showgrid=True  # Affichage de la grille
+                )
 
                 # Texte des valeurs en noir et plus grand
                 fig.update_traces(textfont=dict(size=12, color="black"))
@@ -896,7 +965,7 @@ with layout_container:
                     top_10_states,
                     x="customer_state",
                     y="customer_count",
-                    title="Top 10 États par nombre de clients",
+                    title=" ",
                     color="avg_total_spend",
                     color_continuous_scale="Viridis",
                     text_auto=True
@@ -905,25 +974,35 @@ with layout_container:
                 fig.update_layout(
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=14, color="black"),  # Taille augmentée et couleur noire
+                    font=dict(family="Arial, sans-serif", size=14, color="black"),
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=10),
                     xaxis_title="État",
                     yaxis_title="Nombre de clients",
-                    coloraxis_colorbar=dict(
-                        title="Dépense moyenne (R$)",
-                        title_font=dict(size=14, color="black"),  # Titre de la barre de couleur en noir et plus grand
-                        tickfont=dict(size=12, color="black")  # Texte des graduations en noir et plus grand
-                    ),
-                    title_font=dict(size=16, color="black")  # Titre en noir et plus grand
+                    title_font=dict(size=16, color="black"),
+                    showlegend=False  # Suppression de la légende
                 )
+                # Supprimer la barre de couleur
+                fig.update_layout(coloraxis_showscale=False)
 
                 # Mise à jour des axes avec texte plus grand et noir
-                fig.update_xaxes(title_font=dict(size=14, color="black"), tickfont=dict(size=12, color="black"))
-                fig.update_yaxes(title_font=dict(size=14, color="black"), tickfont=dict(size=12, color="black"))
+                fig.update_xaxes(
+                    title_font=dict(size=14, color="black"),
+                    tickfont=dict(size=14, color="black")
+                )
+
+                # Configuration de l'axe y avec grille horizontale grise et sans chiffres
+                fig.update_yaxes(
+                    title_font=dict(size=14, color="black"),
+                    tickfont=dict(size=14, color="black"),
+                    showticklabels=False,  # Suppression des chiffres sur l'axe y
+                    gridcolor='lightgray',  # Couleur grise pour la grille
+                    gridwidth=0.5,  # Épaisseur de la grille
+                    showgrid=True  # Affichage de la grille
+                )
 
                 # Texte des valeurs en noir et plus grand
-                fig.update_traces(textfont=dict(size=12, color="black"))
+                fig.update_traces(textfont=dict(size=14, color="black"))
 
                 st.plotly_chart(fig, use_container_width=True)
             else:
@@ -932,77 +1011,87 @@ with layout_container:
             st.error(f"Erreur lors de l'affichage de la répartition géographique: {e}")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # Catégories de produits populaires
-    st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
-    st.markdown("<h3>Catégories de produits populaires</h3>", unsafe_allow_html=True)
-    try:
-        category_data = load_customer_categories(sql_start_date, sql_end_date)
+# Catégories de produits populaires
+st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
+st.markdown("<h3>Catégories de produits populaires</h3>", unsafe_allow_html=True)
+try:
+    category_data = load_customer_categories(sql_start_date, sql_end_date)
 
-        if not category_data.empty:
-            # Prendre les 10 premières catégories par nombre de clients
-            top_10_categories = category_data.sort_values("customer_count", ascending=False).head(10)
+    if not category_data.empty:
+        # Prendre les 10 premières catégories par nombre de clients
+        top_10_categories = category_data.sort_values("customer_count", ascending=False).head(10)
 
-            # Créer le graphique
-            fig = px.bar(
-                top_10_categories,
-                x="product_category_name",
-                y="customer_count",
-                title="Top 10 catégories de produits par nombre de clients",
-                color="total_spend",
-                color_continuous_scale="Viridis",
-                text_auto=True
-            )
+        # Créer le graphique
+        fig = px.bar(
+            top_10_categories,
+            x="product_category_name",
+            y="customer_count",
+            title=" ",
+            color="total_spend",
+            color_continuous_scale="Viridis",
+            text_auto=True
+        )
 
-            fig.update_layout(
-                plot_bgcolor="white",
-                paper_bgcolor="white",
-                font=dict(family="Arial, sans-serif", size=14, color="black"),  # Taille augmentée et couleur noire
-                height=graph_height,
-                margin=dict(l=10, r=10, t=30, b=10),
-                xaxis_title="Catégorie de produit",
-                yaxis_title="Nombre de clients",
-                coloraxis_colorbar=dict(
-                    title="Dépense totale (R$)",
-                    title_font=dict(size=14, color="black"),  # Titre de la barre de couleur en noir et plus grand
-                    tickfont=dict(size=12, color="black")  # Texte des graduations en noir et plus grand
-                ),
-                xaxis={'categoryorder':'total descending'},
-                title_font=dict(size=16, color="black")  # Titre en noir et plus grand
-            )
+        fig.update_layout(
+            plot_bgcolor="white",
+            paper_bgcolor="white",
+            font=dict(family="Arial, sans-serif", size=14, color="black"),
+            height=graph_height,
+            margin=dict(l=10, r=10, t=30, b=10),
+            xaxis_title="Catégorie de produit",
+            yaxis_title="Nombre de clients",
+            xaxis={'categoryorder':'total descending'},
+            title_font=dict(size=16, color="black"),
+            showlegend=False,  # Suppression de la légende
+            coloraxis_showscale=False  # Suppression de la barre de couleur
+        )
 
-            # Mise à jour des axes avec texte plus grand et noir
-            fig.update_xaxes(
-                title_font=dict(size=14, color="black"),
-                tickfont=dict(size=12, color="black"),
-                tickangle=45
-            )
-            fig.update_yaxes(title_font=dict(size=14, color="black"), tickfont=dict(size=12, color="black"))
+        # Mise à jour des axes avec texte plus grand et noir
+        fig.update_xaxes(
+            title_font=dict(size=14, color="black"),
+            tickfont=dict(size=14, color="black"),
+            tickangle=45
+        )
 
-            # Texte des valeurs en noir et plus grand
-            fig.update_traces(textfont=dict(size=12, color="black"))
+        # Configuration de l'axe y avec grille horizontale grise et sans chiffres
+        fig.update_yaxes(
+            title_font=dict(size=14, color="black"),
+            tickfont=dict(size=14, color="black"),
+            showticklabels=False,  # Suppression des chiffres sur l'axe y
+            gridcolor='lightgray',  # Couleur grise pour la grille
+            gridwidth=0.5,  # Épaisseur de la grille
+            showgrid=True  # Affichage de la grille
+        )
 
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.warning("Aucune donnée de catégorie disponible.")
-    except Exception as e:
-        st.error(f"Erreur lors de l'affichage des catégories de produits: {e}")
-    st.markdown("</div>", unsafe_allow_html=True)
+        # Texte des valeurs en noir et plus grand
+        fig.update_traces(textfont=dict(size=14, color="black"))
 
-    # Table des clients les plus valorisés
-    st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
-    st.markdown("<h3>Top 20 clients les plus valorisés</h3>", unsafe_allow_html=True)
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning("Aucune donnée de catégorie disponible.")
+except Exception as e:
+    st.error(f"Erreur lors de l'affichage des catégories de produits: {e}")
+st.markdown("</div>", unsafe_allow_html=True)
 
-    try:
-        if not customer_data.empty:
-            # Ajouter un sélecteur pour l'ordre de tri
-            sort_options = {
-                "estimated_annual_value": "Valeur annuelle estimée (décroissant)",
-                "total_spend": "Dépense totale (décroissant)",
-                "order_count": "Nombre de commandes (décroissant)",
-                "average_order_value": "Valeur moyenne des commandes (décroissant)",
-                "purchase_frequency_monthly": "Fréquence d'achat mensuelle (décroissant)"
-            }
+# Table des clients les plus valorisés
+st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
+st.markdown("<h3>Top 20 clients les plus valorisés</h3>", unsafe_allow_html=True)
 
+try:
+    if not customer_data.empty:
+        # Ajouter un sélecteur pour la colonne de tri
+        sort_options = {
+            "estimated_annual_value": "Valeur annuelle estimée",
+            "total_spend": "Dépense totale",
+            "order_count": "Nombre de commandes",
+            "average_order_value": "Valeur moyenne des commandes",
+            "purchase_frequency_monthly": "Fréquence d'achat mensuelle"
+        }
+
+        # Créer deux colonnes pour placer les sélecteurs côte à côte
+        col1, col2 = st.columns(2)
+
+        with col1:
             selected_sort = st.selectbox(
                 "Trier par:",
                 options=list(sort_options.keys()),
@@ -1010,111 +1099,122 @@ with layout_container:
                 index=0  # Par défaut, tri par valeur annuelle estimée
             )
 
-            # Sélectionner les colonnes pertinentes
-            top_customers = customer_data[[
-                "customer_unique_id", "order_count", "total_spend",
-                "average_order_value", "purchase_frequency_monthly",
-                "estimated_annual_value", "customer_segment"
-            ]]
+        with col2:
+            # Ajouter un sélecteur pour l'ordre de tri
+            sort_order = st.radio(
+                "Ordre:",
+                options=["Décroissant", "Croissant"],
+                horizontal=True,
+                index=0  # Par défaut, ordre décroissant
+            )
 
-            # Trier selon la colonne sélectionnée
-            top_customers = top_customers.sort_values(by=selected_sort, ascending=False)
+        # Déterminer si le tri est ascendant ou descendant
+        ascending = sort_order == "Croissant"
 
-            # Limiter le nombre de lignes pour l'affichage
-            display_limit = st.slider("Nombre de clients à afficher", 5, 100, 20)
-            top_customers = top_customers.head(display_limit)
+        # Sélectionner les colonnes pertinentes
+        top_customers = customer_data[[
+            "customer_unique_id", "order_count", "total_spend",
+            "average_order_value", "purchase_frequency_monthly",
+            "estimated_annual_value", "customer_segment"
+        ]]
 
-            # Copie pour conserver les valeurs numériques pour le style
-            numeric_df = top_customers.copy()
+        # Trier selon la colonne sélectionnée et l'ordre choisi
+        top_customers = top_customers.sort_values(by=selected_sort, ascending=ascending)
 
-            # Copie pour affichage avec formatage
-            top_customers_display = top_customers.copy()
-            top_customers_display["total_spend"] = top_customers_display["total_spend"].apply(lambda x: f"R$ {x:,.2f}")
-            top_customers_display["average_order_value"] = top_customers_display["average_order_value"].apply(lambda x: f"R$ {x:,.2f}")
-            top_customers_display["purchase_frequency_monthly"] = top_customers_display["purchase_frequency_monthly"].apply(lambda x: f"{x:.4f}")
-            top_customers_display["estimated_annual_value"] = top_customers_display["estimated_annual_value"].apply(lambda x: f"R$ {x:,.2f}")
+        # Limiter le nombre de lignes pour l'affichage
+        display_limit = st.slider("Nombre de clients à afficher", 5, 100, 20)
+        top_customers = top_customers.head(display_limit)
 
-            # Renommer les colonnes pour affichage
-            top_customers_display = top_customers_display.rename(columns={
-                "customer_unique_id": "ID Client",
-                "order_count": "Nb Commandes",
-                "total_spend": "Dépense Totale",
-                "average_order_value": "Valeur Moy. Commande",
-                "purchase_frequency_monthly": "Fréq. Mensuelle",
-                "estimated_annual_value": "Valeur Annuelle",
-                "customer_segment": "Segment"
+        # Copie pour conserver les valeurs numériques pour le style
+        numeric_df = top_customers.copy()
+
+        # Copie pour affichage avec formatage
+        top_customers_display = top_customers.copy()
+        top_customers_display["total_spend"] = top_customers_display["total_spend"].apply(lambda x: f"R$ {x:,.2f}")
+        top_customers_display["average_order_value"] = top_customers_display["average_order_value"].apply(lambda x: f"R$ {x:,.2f}")
+        top_customers_display["purchase_frequency_monthly"] = top_customers_display["purchase_frequency_monthly"].apply(lambda x: f"{x:.4f}")
+        top_customers_display["estimated_annual_value"] = top_customers_display["estimated_annual_value"].apply(lambda x: f"R$ {x:,.2f}")
+
+        # Renommer les colonnes pour affichage
+        top_customers_display = top_customers_display.rename(columns={
+            "customer_unique_id": "ID Client",
+            "order_count": "Nb Commandes",
+            "total_spend": "Dépense Totale",
+            "average_order_value": "Valeur Moy. Commande",
+            "purchase_frequency_monthly": "Fréq. Mensuelle",
+            "estimated_annual_value": "Valeur Annuelle",
+            "customer_segment": "Segment"
+        })
+
+        # Appliquer le style uniforme avec une seule palette de couleur (Bleu)
+        styled_df = numeric_df.style\
+            .background_gradient(subset=["order_count", "total_spend", "average_order_value",
+                                        "purchase_frequency_monthly", "estimated_annual_value"], cmap="Blues")\
+                                        .applymap(lambda _: "background-color: lightgrey;", subset=["customer_unique_id", "customer_segment"])\
+                                        .applymap(lambda _: "color: black;", subset=["customer_unique_id", "customer_segment"])\
+            .format({
+                "total_spend": "R$ {:.2f}",
+                "average_order_value": "R$ {:.2f}",
+                "purchase_frequency_monthly": "{:.4f}",
+                "estimated_annual_value": "R$ {:.2f}"
             })
 
-            # Appliquer le style uniforme avec une seule palette de couleur (Bleu)
-            styled_df = numeric_df.style\
-                .background_gradient(subset=["order_count", "total_spend", "average_order_value",
-                                            "purchase_frequency_monthly", "estimated_annual_value"], cmap="Blues")\
-                                            .applymap(lambda _: "background-color: lightgrey;", subset=["customer_unique_id", "customer_segment"])\
-                                            .applymap(lambda _: "color: black;", subset=["customer_unique_id", "customer_segment"])\
-                .format({
-                    "total_spend": "R$ {:.2f}",
-                    "average_order_value": "R$ {:.2f}",
-                    "purchase_frequency_monthly": "{:.4f}",
-                    "estimated_annual_value": "R$ {:.2f}"
-                })
-
-            # Appliquer un fond bleu clair à l'entête
-            styled_df = styled_df.set_table_styles([
-                {
-                    'selector': 'th',  # Sélectionner la ligne d'entête
-                    'props': [
-                        ('background-color', '#1e88e5'),  # Bleu clair pour la ligne d'entête
-                        ('color', 'white'),  # Texte noir pour l'entête
-                        ('text-align', 'center')  # Centrer le texte de l'entête
-                    ]
-                }
-            ])
-
-
-            # Générer le HTML sans index
-            html_table = styled_df.hide(axis="index").to_html()
-
-            # Remplacement des noms de colonnes en français
-            html_table = html_table.replace('>customer_unique_id<', '>ID Client<')
-            html_table = html_table.replace('>order_count<', '>Nb Commandes<')
-            html_table = html_table.replace('>total_spend<', '>Dépense Totale<')
-            html_table = html_table.replace('>average_order_value<', '>Valeur Moy. Commande<')
-            html_table = html_table.replace('>purchase_frequency_monthly<', '>Fréq. Mensuelle<')
-            html_table = html_table.replace('>estimated_annual_value<', '>Valeur Annuelle<')
-            html_table = html_table.replace('>customer_segment<', '>Segment<')
-
-            # Ajout du CSS pour le défilement
-            st.markdown("""
-            <style>
-            .scrollable-table {
-                height: 400px;
-                overflow-y: auto;
-                display: block;
+        # Appliquer un fond bleu clair à l'entête
+        styled_df = styled_df.set_table_styles([
+            {
+                'selector': 'th',  # Sélectionner la ligne d'entête
+                'props': [
+                    ('background-color', '#1e88e5'),  # Bleu clair pour la ligne d'entête
+                    ('color', 'white'),  # Texte blanc pour l'entête
+                    ('text-align', 'center')  # Centrer le texte de l'entête
+                ]
             }
-            .scrollable-table table {
-                width: 100%;
-            }
-            </style>
-            """, unsafe_allow_html=True)
+        ])
 
-            # Envelopper le tableau dans un div avec défilement
-            st.markdown(f'<div class="scrollable-table">{html_table}</div>', unsafe_allow_html=True)
+        # Générer le HTML sans index
+        html_table = styled_df.hide(axis="index").to_html()
 
-            # Option de téléchargement
-            csv = top_customers.to_csv(index=False)
-            st.download_button(
-                label="📥 Télécharger les données (CSV)",
-                data=csv,
-                file_name="olist_top_customers.csv",
-                mime="text/csv",
-                help="Télécharger les données des clients les plus valorisés au format CSV"
-            )
-        else:
-            st.warning("Aucune donnée client disponible.")
-    except Exception as e:
-        st.error(f"Erreur lors de l'affichage des clients les plus valorisés: {e}")
+        # Remplacement des noms de colonnes en français
+        html_table = html_table.replace('>customer_unique_id<', '>ID Client<')
+        html_table = html_table.replace('>order_count<', '>Nb Commandes<')
+        html_table = html_table.replace('>total_spend<', '>Dépense Totale<')
+        html_table = html_table.replace('>average_order_value<', '>Valeur Moy. Commande<')
+        html_table = html_table.replace('>purchase_frequency_monthly<', '>Fréq. Mensuelle<')
+        html_table = html_table.replace('>estimated_annual_value<', '>Valeur Annuelle<')
+        html_table = html_table.replace('>customer_segment<', '>Segment<')
 
-    st.markdown("</div>", unsafe_allow_html=True)
+        # Ajout du CSS pour le défilement
+        st.markdown("""
+        <style>
+        .scrollable-table {
+            height: 400px;
+            overflow-y: auto;
+            display: block;
+        }
+        .scrollable-table table {
+            width: 100%;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
-    # Pied de page
-    st.markdown("<div class='footer'>© 2023 Olist - Analyse des clients - Dernière mise à jour: {}</div>".format(datetime.now().strftime("%d/%m/%Y %H:%M")), unsafe_allow_html=True)
+        # Envelopper le tableau dans un div avec défilement
+        st.markdown(f'<div class="scrollable-table">{html_table}</div>', unsafe_allow_html=True)
+
+        # Option de téléchargement
+        csv = top_customers.to_csv(index=False)
+        st.download_button(
+            label="📥 Télécharger les données (CSV)",
+            data=csv,
+            file_name="olist_top_customers.csv",
+            mime="text/csv",
+            help="Télécharger les données des clients les plus valorisés au format CSV"
+        )
+    else:
+        st.warning("Aucune donnée client disponible.")
+except Exception as e:
+    st.error(f"Erreur lors de l'affichage des clients les plus valorisés: {e}")
+
+st.markdown("</div>", unsafe_allow_html=True)
+
+# Pied de page
+st.markdown("<div class='footer'>© 2023 Olist - Analyse des clients - Dernière mise à jour: {}</div>".format(datetime.now().strftime("%d/%m/%Y %H:%M")), unsafe_allow_html=True)

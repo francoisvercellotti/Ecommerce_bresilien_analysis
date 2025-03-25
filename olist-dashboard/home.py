@@ -27,7 +27,7 @@ st.markdown("""
     </div>
     """, unsafe_allow_html=True)
 
-# Ajout de CSS personnalisé - optimisé pour réduire les "boudins blancs" et améliorer la visibilité des titres
+# Ajout de CSS personnalisé
 st.markdown("""
 <style>
     /* Fond bleu marine et texte blanc pour le corps principal */
@@ -166,6 +166,49 @@ st.markdown("""
     .st-emotion-cache-1y4p8pa {
         padding: 0.5rem !important;
     }
+
+    /* Stylisation de la sidebar avec fond blanc et texte bleu */
+    .css-1d391kg, .css-1wrcr25, .css-12oz5g7, [data-testid="stSidebar"] {
+        background-color: white !important;
+    }
+
+    /* Texte et éléments de la sidebar en bleu */
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] .stSelectbox label,
+    [data-testid="stSidebar"] .stMultiSelect label,
+    [data-testid="stSidebar"] .stDateInput label,
+    [data-testid="stSidebar"] span {
+        color: #0d2b45 !important;
+        font-size: 1.1rem !important;
+        font-weight: 500 !important;
+    }
+
+    /* Police plus grande pour les éléments de la sidebar */
+    [data-testid="stSidebar"] .stSelectbox,
+    [data-testid="stSidebar"] .stMultiSelect,
+    [data-testid="stSidebar"] .stDateInput {
+        font-size: 1.1rem !important;
+    }
+
+    /* Nouveau style pour les titres de section - plus élégant */
+    .filter-section-title {
+        color: #0d2b45 !important;
+        font-weight: bold;
+        font-size: 1.2rem;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #0d2b45;
+        text-transform: uppercase;
+    }
+
+    /* Style pour les sections de filtres */
+    .filter-section {
+        margin-bottom: 25px;
+        padding-bottom: 5px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -174,51 +217,78 @@ def format_currency(value):
     return f"R$ {value:,.2f}"
 
 
-# Filtres dans la barre latérale
-st.sidebar.title("Filtres")
+with st.sidebar:
+    st.markdown('<h2 style="text-align: center; padding-bottom: 10px;">FILTRES</h2>', unsafe_allow_html=True)
 
-# Date range filter - amélioré dans la sidebar
-date_min = datetime(2016, 9, 1)
-date_max = datetime(2018, 10, 31)
+    # Section PÉRIODE
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    st.markdown('<div class="filter-section-title">PÉRIODE</div>', unsafe_allow_html=True)
 
-# Options prédéfinies pour la sélection de la période
-period_options = [
-    "Période personnalisée",
-    "Derniers 30 jours",
-    "Derniers 90 jours",
-    "Dernière année",
-    "Tout l'historique"
-]
-selected_period = st.sidebar.selectbox("Choisir une période", period_options)
+    # Date range filter - amélioré dans la sidebar
+    date_min = datetime(2016, 9, 1)
+    date_max = datetime(2018, 10, 31)
 
-if selected_period == "Période personnalisée":
-    date_range = st.sidebar.date_input(
-        "Sélectionner les dates",
-        value=(date_min.date(), date_max.date()),
-        min_value=date_min.date(),
-        max_value=date_max.date(),
-    )
-else:
-    end_date = date_max.date()
-    if selected_period == "Derniers 30 jours":
-        start_date = end_date - timedelta(days=30)
-    elif selected_period == "Derniers 90 jours":
-        start_date = end_date - timedelta(days=90)
-    elif selected_period == "Dernière année":
-        start_date = end_date - timedelta(days=365)
-    else:  # Tout l'historique
-        start_date = date_min.date()
+    # Options prédéfinies pour la sélection de la période
+    period_options = [
+        "Période personnalisée",
+        "Derniers 30 jours",
+        "Derniers 90 jours",
+        "Dernière année",
+        "Tout l'historique"
+    ]
+    selected_period = st.selectbox("Choisir une période", period_options)
 
-    date_range = (start_date, end_date)
-    st.sidebar.write(f"Période: {start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}")
+    if selected_period == "Période personnalisée":
+        # Deux sélecteurs de date distincts
+        start_date = st.date_input(
+            "Date de début",
+            value=date_min.date(),
+            min_value=date_min.date(),
+            max_value=date_max.date(),
+        )
 
-# Filtre d'état (Brésil)
-states = ["Tous"] + ["SP", "RJ", "MG", "RS", "PR", "SC", "BA", "DF", "GO", "ES"]
-selected_state = st.sidebar.selectbox("État", states)
+        end_date = st.date_input(
+            "Date de fin",
+            value=date_max.date(),
+            min_value=date_min.date(),
+            max_value=date_max.date(),
+        )
+
+        # Vérification que la date de fin est postérieure à la date de début
+        if start_date > end_date:
+            st.warning("La date de fin doit être postérieure à la date de début.")
+            end_date = start_date
+
+        date_range = (start_date, end_date)
+    else:
+        end_date = date_max.date()
+        if selected_period == "Derniers 30 jours":
+            start_date = end_date - timedelta(days=30)
+        elif selected_period == "Derniers 90 jours":
+            start_date = end_date - timedelta(days=90)
+        elif selected_period == "Dernière année":
+            start_date = end_date - timedelta(days=365)
+        else:  # Tout l'historique
+            start_date = date_min.date()
+
+        date_range = (start_date, end_date)
+        st.markdown(f"<p>Période: {start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}</p>", unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Section LOCALISATION
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    st.markdown('<div class="filter-section-title">Zone Géographique</div>', unsafe_allow_html=True)
+
+    # Filtre d'état (Brésil)
+    states = ["Tous"] + ["SP", "RJ", "MG", "RS", "PR", "SC", "BA", "DF", "GO", "ES"]
+    selected_state = st.selectbox("État", states)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Pour ce dashboard, la densité d'affichage est désormais en mode "précis" par défaut
-graph_height = 300
-map_height = 380
+graph_height = 400
+map_height = 400
 
 # Paramètres pour les requêtes SQL
 params = {
@@ -334,22 +404,25 @@ with layout_container:
             paper_bgcolor="white",
             font=dict(
                 family="Arial, sans-serif",
-                size=9,
+                size=11,
                 color="black"
             ),
             xaxis=dict(
                 title=dict(
-                    text="Date",
+                    text=" ",
                     font=dict(color="black", size=9)
                 ),
-                tickfont=dict(color="black", size=8)
+                tickfont=dict(color="black", size=11),
+                showgrid=False  # Désactiver la grille verticale
             ),
             yaxis=dict(
                 title=dict(
                     text=y_title,
-                    font=dict(color="black", size=9)
+                    font=dict(color="black", size=11)
                 ),
-                tickfont=dict(color="black", size=8)
+                tickfont=dict(color="black", size=11),
+                showgrid=True,  # Activer la grille horizontale
+                gridcolor='lightgray'  # Couleur grise pour la grille horizontale
             ),
             legend=dict(font=dict(color="black", size=8)),
             height=graph_height,
@@ -368,36 +441,55 @@ with layout_container:
         st.markdown("<h3 style='color: white;'>Top 10 Catégories par Revenu</h3>", unsafe_allow_html=True)
         top_categories = execute_query("top_categories.sql", params)
         if not top_categories.empty:
+            # Création d'un dégradé de bleu personnalisé (commençant par un bleu plus foncé)
+            custom_blues = [
+                '#5dade2',
+                '#3498db',
+                '#2980b9',
+                '#2475b0',
+                '#1e3799'
+
+            ]
+
             fig_cat = px.bar(
                 top_categories.head(10),
                 x="total_revenue",
                 y="product_category_name_english",
                 orientation='h',
-                labels={"total_revenue": "Chiffre d'affaires (R$)", "product_category_name_english": "Catégorie"}
+                labels={"total_revenue": "Chiffre d'affaires (R$)", "product_category_name_english": "Catégorie"},
+                color="total_revenue",
+                color_continuous_scale=custom_blues
             )
+
+            # Mise à jour du layout
             fig_cat.update_layout(
                 height=graph_height,
+                font_size=14,
+                font_color="black",  # Toutes les écritures en noir
                 plot_bgcolor="white",
                 paper_bgcolor="white",
-                font=dict(
-                    family="Arial, sans-serif",
-                    size=9,
-                    color="black"
-                ),
-                xaxis=dict(
-                    title=dict(
-                        text="Chiffre d'affaires (R$)",
-                        font=dict(color="black", size=9)
-                    ),
-                    tickfont=dict(color="black", size=8)
-                ),
-                yaxis=dict(
-                    categoryorder='total ascending',
-                    title=dict(text="", font=dict(color="black", size=9)),
-                    tickfont=dict(color="black", size=8)
-                ),
                 margin=dict(l=20, r=10, t=5, b=20)
             )
+
+            # Mise à jour des axes
+            fig_cat.update_xaxes(
+                tickfont_size=12,
+                title_text="Chiffre d'affaires (R$)",
+                title_font_size=14,
+                title_font_color="black",
+                tickfont_color="black"
+            )
+
+            fig_cat.update_yaxes(
+                tickfont_size=12,
+                categoryorder='total ascending',
+                title_text="",  # Pas de titre pour l'axe Y
+                tickfont_color="black"
+            )
+
+            # Masquer la barre de couleur
+            fig_cat.update_coloraxes(showscale=False)
+
             st.plotly_chart(fig_cat, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -406,14 +498,41 @@ with layout_container:
         st.markdown("<h3 style='color: white;'>Répartition des avis clients</h3>", unsafe_allow_html=True)
         review_data = execute_query("reviews_distribution.sql", params)
         if not review_data.empty:
+            # Créer une copie du dataframe avec un nouvel ordre pour le mapping des couleurs
+            color_mapping_df = review_data.copy()
+
+            # Trier par count pour avoir une correspondance entre hauteur de barre et couleur
+            color_mapping_df = color_mapping_df.sort_values(by="count", ascending=False)
+
+            # Créer une palette de couleurs basée sur l'ordre des valeurs de count
+            n_colors = len(color_mapping_df)
+            colors_list = ["#1a9850", "#91cf60", "#d9ef8b", "#fee08b"]
+            # S'assurer d'avoir suffisamment de couleurs, répéter la dernière si nécessaire
+            if n_colors > len(colors_list):
+                colors_list.extend([colors_list[-1]] * (n_colors - len(colors_list)))
+            elif n_colors < len(colors_list):
+                colors_list = colors_list[:n_colors]
+
+            # Créer un dictionnaire de correspondance note -> couleur basé sur la hauteur
+            color_dict = {row["review_score"]: colors_list[i] for i, (_, row) in enumerate(color_mapping_df.iterrows())}
+
             fig_review = px.bar(
                 review_data,
                 x="review_score",
                 y="count",
                 labels={"review_score": "Note", "count": "Nombre d'avis"},
                 color="review_score",
-                color_continuous_scale=px.colors.sequential.Viridis
+                color_discrete_map=color_dict
             )
+
+            # Ajout des valeurs à l'intérieur des barres
+            fig_review.update_traces(
+                texttemplate='%{y}',
+                textposition='inside',
+                textfont=dict(color="black", size=12)
+            )
+
+            # Modifications avec grille horizontale uniquement
             fig_review.update_layout(
                 height=graph_height,
                 plot_bgcolor="white",
@@ -426,26 +545,26 @@ with layout_container:
                 xaxis=dict(
                     title=dict(
                         text="Note",
-                        font=dict(color="black", size=9)
+                        font=dict(color="black", size=10)
                     ),
-                    tickfont=dict(color="black", size=8)
+                    showticklabels=True,
+                    tickfont=dict(color="black", size=12),
+                    showgrid=False  # Pas de grille verticale
                 ),
                 yaxis=dict(
                     title=dict(
                         text="Nombre d'avis",
                         font=dict(color="black", size=9)
                     ),
+                    showgrid=True,  # Grille horizontale uniquement
+                    gridcolor='lightgrey',
                     tickfont=dict(color="black", size=8)
                 ),
-                coloraxis_colorbar=dict(
-                    title=dict(
-                        text="Note",
-                        font=dict(color="black", size=9)
-                    ),
-                    tickfont=dict(color="black", size=8)
-                ),
+                showlegend=False,
+                coloraxis_showscale=False,
                 margin=dict(l=20, r=10, t=5, b=20)
             )
+
             st.plotly_chart(fig_review, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
 

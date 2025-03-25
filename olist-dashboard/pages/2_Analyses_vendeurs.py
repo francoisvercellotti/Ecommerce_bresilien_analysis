@@ -158,6 +158,48 @@ st.markdown("""
     .dataframe td {
         padding: 3px !important;
     }
+    /* Stylisation de la sidebar avec fond blanc et texte bleu */
+    .css-1d391kg, .css-1wrcr25, .css-12oz5g7, [data-testid="stSidebar"] {
+        background-color: white !important;
+    }
+
+    /* Texte et éléments de la sidebar en bleu */
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] .stSelectbox label,
+    [data-testid="stSidebar"] .stMultiSelect label,
+    [data-testid="stSidebar"] .stDateInput label,
+    [data-testid="stSidebar"] span {
+        color: #0d2b45 !important;
+        font-size: 1.1rem !important;
+        font-weight: 500 !important;
+    }
+
+    /* Police plus grande pour les éléments de la sidebar */
+    [data-testid="stSidebar"] .stSelectbox,
+    [data-testid="stSidebar"] .stMultiSelect,
+    [data-testid="stSidebar"] .stDateInput {
+        font-size: 1.1rem !important;
+    }
+
+    /* Nouveau style pour les titres de section - plus élégant */
+    .filter-section-title {
+        color: #0d2b45 !important;
+        font-weight: bold;
+        font-size: 1.2rem;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #0d2b45;
+        text-transform: uppercase;
+    }
+
+    /* Style pour les sections de filtres */
+    .filter-section {
+        margin-bottom: 25px;
+        padding-bottom: 5px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -174,7 +216,7 @@ def load_seller_performance(start_date=None, end_date=None):
             seller_id,
             COUNT(DISTINCT order_id) AS total_orders,
             COUNT(DISTINCT product_id) AS unique_products,
-            COUNT(DISTINCT product_category_name) AS product_categories,
+            COUNT(DISTINCT product_category_name_english) AS product_categories,
             SUM(price) AS total_revenue,
             AVG(price) AS average_price,
             AVG(delivery_time_days) AS avg_delivery_time,
@@ -269,14 +311,14 @@ def load_seller_categories(start_date=None, end_date=None):
     query = """
     SELECT
         seller_id,
-        product_category_name,
+        product_category_name_english,
         COUNT(DISTINCT order_id) AS order_count,
         SUM(price) AS total_revenue,
         AVG(review_score) AS avg_review
     FROM vw_order_details
-    WHERE seller_id IS NOT NULL AND product_category_name IS NOT NULL
+    WHERE seller_id IS NOT NULL AND product_category_name_english IS NOT NULL
     {date_filter}
-    GROUP BY seller_id, product_category_name
+    GROUP BY seller_id, product_category_name_english
     ORDER BY seller_id, SUM(price) DESC
     """
 
@@ -319,17 +361,18 @@ def load_date_range():
     return execute_query("date_range.sql")
 
 # Constantes pour les graphiques
-graph_height = 300
+graph_height = 400
 heatmap_height = 600
 
 
-# Filtres dans la sidebar
 with st.sidebar:
-    st.markdown("<h2 class='sub-header'>Filtres</h2>", unsafe_allow_html=True)
+    st.markdown('<h2 style="text-align: center; padding-bottom: 10px;">FILTRES</h2>', unsafe_allow_html=True)
 
+    # Section PÉRIODE
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    st.markdown('<div class="filter-section-title">PÉRIODE</div>', unsafe_allow_html=True)
 
-    # Filtre de période
-    st.markdown("<h3 class='sub-header'>Période</h3>", unsafe_allow_html=True)
+    # Votre code existant pour les dates
     try:
         date_range = load_date_range()
         if not date_range.empty:
@@ -382,18 +425,24 @@ with st.sidebar:
         start_date = None
         end_date = None
 
+    # Fermer la div de la section période
+    st.markdown('</div>', unsafe_allow_html=True)
+
     # Convertir les dates en format string pour les requêtes SQL si nécessaire
     sql_start_date = start_date.strftime('%Y-%m-%d') if start_date else None
     sql_end_date = end_date.strftime('%Y-%m-%d') if end_date else None
 
     # Filtre de performance
-    st.markdown("<h3 class='sub-header'>Filtres de performance</h3>", unsafe_allow_html=True)
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    st.markdown('<div class="filter-section-title">Performances</div>', unsafe_allow_html=True)
     performance_categories = ["Elite", "High Performer", "Good", "Average", "Needs Improvement"]
     selected_performance = st.multiselect(
         "Catégories de performance",
         options=performance_categories,
         default=performance_categories
     )
+    # Fermer la div de la section performance
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # Nombre minimum de commandes
     min_orders = st.slider(
@@ -507,29 +556,44 @@ with layout_container:
         st.error(f"Erreur lors du chargement des métriques générales: {e}")
 
 
-    # Tableau de performance des vendeurs
+   # Tableau de performance des vendeurs
     st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
     st.markdown("<h3>Performance des vendeurs</h3>", unsafe_allow_html=True)
     try:
         if not seller_data.empty:
             # Ajouter un sélecteur pour l'ordre de tri
             sort_options = {
-                "total_orders": "Nombre de commandes (décroissant)",
-                "total_revenue": "Revenu total (décroissant)",
-                "avg_review": "Note moyenne (décroissant)",
-                "on_time_delivery_percentage": "% Livraison à temps (décroissant)",
-                "positive_review_percentage": "% Avis positifs (décroissant)"
+                "total_orders": "Nombre de commandes",
+                "total_revenue": "Revenu total",
+                "avg_review": "Note moyenne",
+                "on_time_delivery_percentage": "% Livraison à temps",
+                "positive_review_percentage": "% Avis positifs"
             }
 
-            selected_sort = st.selectbox(
-                "Trier par:",
-                options=list(sort_options.keys()),
-                format_func=lambda x: sort_options[x],
-                index=1  # Par défaut, tri par revenu total
-            )
+            # Créer deux colonnes pour les options de tri
+            col1, col2 = st.columns([3, 1])
 
-            # Trier le DataFrame selon la colonne sélectionnée
-            seller_data = seller_data.sort_values(by=selected_sort, ascending=False)
+            with col1:
+                selected_sort = st.selectbox(
+                    "Trier par:",
+                    options=list(sort_options.keys()),
+                    format_func=lambda x: sort_options[x],
+                    index=1  # Par défaut, tri par revenu total
+                )
+
+            with col2:
+                sort_order = st.radio(
+                    "Ordre:",
+                    options=["Décroissant", "Croissant"],
+                    horizontal=True,
+                    index=0  # Par défaut, tri décroissant
+                )
+
+            # Définir l'ordre de tri (True pour croissant, False pour décroissant)
+            ascending = sort_order == "Croissant"
+
+            # Trier le DataFrame selon la colonne sélectionnée et l'ordre choisi
+            seller_data = seller_data.sort_values(by=selected_sort, ascending=ascending)
 
             # Limiter le nombre de lignes pour l'affichage
             display_limit = st.slider("Nombre de vendeurs à afficher", 10, 100, 20)
@@ -661,25 +725,41 @@ with layout_container:
                     y="count",
                     color="performance_category",
                     labels={"performance_category": "Catégorie de performance", "count": "Nombre de vendeurs"},
-                    color_discrete_map=colors
+                    color_discrete_map=colors,
+                    text='count'  # Afficher le texte des valeurs sur les barres
                 )
 
+                # Mettre à jour la mise en page
                 fig.update_layout(
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=10, color="black"),
+                    font=dict(family="Arial, sans-serif", size=12, color="black"),
                     xaxis=dict(
-                        title=dict(text="Catégorie de performance", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        title=dict(text="Catégorie de performance", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12)
                     ),
                     yaxis=dict(
-                        title=dict(text="Nombre de vendeurs", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        title=dict(text="Nombre de vendeurs", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12),
+                        showticklabels=False,  # Cacher les étiquettes des ticks pour l'axe Y
+                        gridcolor='lightgray',  # Couleur de la grille horizontale
                     ),
                     showlegend=False,
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=10)
                 )
+
+                # Configurer l'apparence des barres pour mettre le texte à l'intérieur
+                fig.update_traces(
+                    texttemplate='%{text}',  # Format du texte
+                    textposition='inside',    # Position du texte à l'intérieur des barres
+                    textfont=dict(size=12, color='black'),  # Police pour le texte
+                )
+
+
+                # Configurer les axes pour n'avoir que des lignes de grille horizontales
+                fig.update_xaxes(showgrid=False)  # Désactiver la grille verticale
+                fig.update_yaxes(showgrid=True)   # Activer la grille horizontale
 
                 st.plotly_chart(fig, use_container_width=True)
             else:
@@ -735,18 +815,19 @@ with layout_container:
                 fig.update_layout(
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=10, color="black"),
+                    font=dict(family="Arial, sans-serif", size=12, color="black"),
                     xaxis=dict(
-                        title=dict(text="Catégorie de performance", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        title=dict(text="Catégorie de performance", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12)
                     ),
                     yaxis=dict(
                         title=dict(text={
                             "avg_review": "Note moyenne",
                             "on_time_delivery_percentage": "% Livraison à temps",
                             "positive_review_percentage": "% Avis positifs"
-                        }[metrics_to_plot], font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        }[metrics_to_plot], font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12),
+                        gridcolor='lightgray',
                     ),
                     showlegend=False,
                     height=graph_height,
@@ -799,22 +880,23 @@ with layout_container:
                 fig.update_layout(
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=10, color="black"),
+                    font=dict(family="Arial, sans-serif", size=12, color="black"),
                     xaxis=dict(
                         title=dict(text={
                             "total_revenue": "Revenu total (R$)",
                             "avg_review": "Note moyenne",
                             "on_time_delivery_percentage": "% Livraison à temps"
-                        }[hist_metric], font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        }[hist_metric], font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12)
                     ),
                     yaxis=dict(
-                        title=dict(text="Nombre de vendeurs", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        title=dict(text="Nombre de vendeurs", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12),
+                        gridcolor='lightgray',
                     ),
                     legend=dict(
-                        font=dict(color="black", size=10),
-                        title=dict(text="Catégorie de performance", font=dict(color="black", size=10))
+                        font=dict(color="black", size=12),
+                        title=dict(text="Catégorie de performance", font=dict(color="black", size=12))
                     ),
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=10),
@@ -888,26 +970,27 @@ with layout_container:
                 fig.update_layout(
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=10, color="black"),
+                    font=dict(family="Arial, sans-serif", size=12, color="black"),
                     xaxis=dict(
                         title=dict(text={
                             "total_revenue": "Revenu total (R$)",
                             "avg_review": "Note moyenne",
                             "on_time_delivery_percentage": "% Livraison à temps"
-                        }[scatter_x], font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        }[scatter_x], font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12)
                     ),
                     yaxis=dict(
                         title=dict(text={
                             "total_revenue": "Revenu total (R$)",
                             "avg_review": "Note moyenne",
                             "on_time_delivery_percentage": "% Livraison à temps"
-                        }[scatter_y], font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        }[scatter_y], font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12),
+                        gridcolor='lightgray',
                     ),
                     legend=dict(
-                        font=dict(color="black", size=10),
-                        title=dict(text="Catégorie de performance", font=dict(color="black", size=10))
+                        font=dict(color="black", size=12),
+                        title=dict(text="Catégorie de performance", font=dict(color="black", size=12))
                     ),
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=10)
@@ -1026,8 +1109,40 @@ with layout_container:
             st.markdown("<h4>Top 5 états par performance</h4>", unsafe_allow_html=True)
             try:
                 if not state_data.empty:
-                    # Trier par revenu total et prendre les 5 premiers
-                    top_states = state_data.sort_values(by="total_revenue", ascending=False).head(5)
+                    # Ajouter des options de tri pour le tableau
+                    sort_options = {
+                        "seller_count": "Nombre de vendeurs",
+                        "total_orders": "Nombre de commandes",
+                        "total_revenue": "Revenu total",
+                        "avg_review": "Note moyenne"
+                    }
+
+                    # Créer deux colonnes pour les options de tri
+                    col1, col2 = st.columns([3, 1])
+
+                    with col1:
+                        selected_sort = st.selectbox(
+                            "Trier par:",
+                            options=list(sort_options.keys()),
+                            format_func=lambda x: sort_options[x],
+                            index=2,  # Par défaut, tri par revenu total
+                            key="state_sort_column"
+                        )
+
+                    with col2:
+                        sort_order = st.radio(
+                            "Ordre:",
+                            options=["Décroissant", "Croissant"],
+                            horizontal=True,
+                            index=0,  # Par défaut, tri décroissant
+                            key="state_sort_order"
+                        )
+
+                    # Définir l'ordre de tri (True pour croissant, False pour décroissant)
+                    ascending = sort_order == "Croissant"
+
+                    # Trier selon la colonne et l'ordre choisis
+                    top_states = state_data.sort_values(by=selected_sort, ascending=ascending).head(5)
 
                     # Supprimer les colonnes lat et lon du DataFrame affiché
                     if "lat" in top_states.columns:
@@ -1144,14 +1259,15 @@ with layout_container:
                 fig.update_layout(
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=10, color="black"),
+                    font=dict(family="Arial, sans-serif", size=12, color="black"),
                     xaxis=dict(
-                        title=dict(text="Mois", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        title=dict(text="Mois", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12)
                     ),
                     yaxis=dict(
-                        title=dict(text="Revenu mensuel (R$)", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        title=dict(text="Revenu mensuel (R$)", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12),
+                        gridcolor='lightgray',
                     ),
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=10)
@@ -1175,14 +1291,15 @@ with layout_container:
                 fig.update_layout(
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=10, color="black"),
+                    font=dict(family="Arial, sans-serif", size=12, color="black"),
                     xaxis=dict(
-                        title=dict(text="Mois", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        title=dict(text=" ", font=dict(color="black", size=10)),
+                        tickfont=dict(color="black", size=12)
                     ),
                     yaxis=dict(
-                        title=dict(text="Nombre de commandes", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        title=dict(text="Nombre de commandes", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12),
+                        gridcolor='lightgray',
                     ),
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=10)
@@ -1206,14 +1323,15 @@ with layout_container:
                 fig.update_layout(
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=10, color="black"),
+                    font=dict(family="Arial, sans-serif", size=12, color="black"),
                     xaxis=dict(
-                        title=dict(text="Mois", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        title=dict(text=" ", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12)
                     ),
                     yaxis=dict(
-                        title=dict(text="Note moyenne", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10),
+                        title=dict(text="Note moyenne", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12),
+                        gridcolor='lightgray',
                         range=[1, 5]
                     ),
                     height=graph_height,
@@ -1238,14 +1356,16 @@ with layout_container:
                 fig.update_layout(
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=10, color="black"),
+                    font=dict(family="Arial, sans-serif", size=12, color="black"),
                     xaxis=dict(
-                        title=dict(text="Mois", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        title=dict(text=" ", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12),
+                        gridcolor='lightgray',
                     ),
                     yaxis=dict(
-                        title=dict(text="Vendeurs actifs", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
+                        title=dict(text="Vendeurs actifs", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12),
+                        gridcolor='lightgray',
                     ),
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=10)
@@ -1260,7 +1380,7 @@ with layout_container:
 
     # Analyse par catégorie de produit
     st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
-    st.markdown("<h3>Product Category Performance</h3>", unsafe_allow_html=True)
+    st.markdown("<h3>Performance par Catégorie de Produit</h3>", unsafe_allow_html=True)
     try:
         # Charger les données de catégories
         category_data = load_seller_categories(sql_start_date, sql_end_date)
@@ -1290,11 +1410,10 @@ with layout_container:
             }
 
             # Traduire les noms de catégories
-            category_data["product_category_name_en"] = category_data["product_category_name"].map(
-                category_translations).fillna(category_data["product_category_name"])
+            category_data["product_category_name_english"] = category_data["product_category_name_english"]
 
             # Agréger par catégorie
-            category_agg = category_data.groupby("product_category_name_en").agg({
+            category_agg = category_data.groupby("product_category_name_english").agg({
                 "order_count": "sum",
                 "total_revenue": "sum",
                 "avg_review": "mean",
@@ -1312,50 +1431,47 @@ with layout_container:
             top_categories = category_agg.head(15)
 
             # Créer deux onglets pour les graphiques de catégories
-            cat_tabs = st.tabs(["Revenue by Category", "Number of Sellers by Category"])
+            cat_tabs = st.tabs(["Revenu par catégorie", "Nombre de vendeurs par catégorie"])
+
 
             with cat_tabs[0]:
                 # Graphique de revenu par catégorie
                 fig = px.bar(
                     top_categories,
-                    x="product_category_name_en",
+                    x="product_category_name_english",  # Gardé tel quel pour utiliser les noms de catégories en anglais
                     y="total_revenue",
                     color="avg_review",
                     color_continuous_scale="RdYlGn",
                     hover_data=["order_count", "seller_count", "avg_review"],
                     labels={
-                        "product_category_name_en": "Product Category",
-                        "total_revenue": "Total Revenue (R$)",
-                        "order_count": "Number of Orders",
-                        "seller_count": "Number of Sellers",
-                        "avg_review": "Average Rating"
+                        "product_category_name_english": "Catégorie de produit",
+                        "total_revenue": "Revenu total (R$)",
+                        "order_count": "Nombre de commandes",
+                        "seller_count": "Nombre de vendeurs",
+                        "avg_review": "Note moyenne"
                     }
                 )
 
                 fig.update_layout(
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=10, color="black"),
+                    font=dict(family="Arial, sans-serif", size=12, color="black"),
                     xaxis=dict(
-                        title=dict(text="Product Category", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10),
+                        title=dict(text="Catégorie de produit", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12),
                         tickangle=45
                     ),
                     yaxis=dict(
-                        title=dict(text="Total Revenue (R$)", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
-                    ),
-                    coloraxis_colorbar=dict(
-                        title="Average Rating",
-                        tickvals=[1, 2, 3, 4, 5],
-                        tickfont=dict(color="black", size=10),
-                        title_font=dict(color="black", size=10),
-                        title_side="right"
+                        title=dict(text="Revenu total (R$)", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12),
+                        gridcolor='lightgray',
                     ),
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=30),
-                    legend=dict(font=dict(color="black", size=10))
+                    legend=dict(font=dict(color="black", size=12))
                 )
+                # Supprimer la barre de couleur
+                fig.update_layout(coloraxis_showscale=False)
 
                 # S'assurer que toutes les annotations et textes sont en noir
                 for annotation in fig.layout.annotations:
@@ -1367,44 +1483,40 @@ with layout_container:
                 # Graphique du nombre de vendeurs par catégorie
                 fig = px.bar(
                     top_categories,
-                    x="product_category_name_en",
+                    x="product_category_name_english",  # Gardé tel quel pour utiliser les noms de catégories en anglais
                     y="seller_count",
                     color="avg_review",
                     color_continuous_scale="RdYlGn",
                     hover_data=["order_count", "total_revenue", "avg_review"],
                     labels={
-                        "product_category_name_en": "Product Category",
-                        "seller_count": "Number of Sellers",
-                        "order_count": "Number of Orders",
-                        "total_revenue": "Total Revenue (R$)",
-                        "avg_review": "Average Rating"
+                        "product_category_name_english": "Catégorie de produit",
+                        "seller_count": "Nombre de vendeurs",
+                        "order_count": "Nombre de commandes",
+                        "total_revenue": "Revenu total (R$)",
+                        "avg_review": "Note moyenne"
                     }
                 )
 
                 fig.update_layout(
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=10, color="black"),
+                    font=dict(family="Arial, sans-serif", size=12, color="black"),
                     xaxis=dict(
-                        title=dict(text="Product Category", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10),
+                        title=dict(text="Catégorie de produit", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12),
                         tickangle=45
                     ),
                     yaxis=dict(
-                        title=dict(text="Number of Sellers", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
-                    ),
-                    coloraxis_colorbar=dict(
-                        title="Average Rating",
-                        tickvals=[1, 2, 3, 4, 5],
-                        tickfont=dict(color="black", size=10),
-                        title_font=dict(color="black", size=10),
-                        title_side="right"
+                        title=dict(text="Nombre de vendeurs", font=dict(color="black", size=12)),
+                        tickfont=dict(color="black", size=12),
+                        gridcolor='lightgray',
                     ),
                     height=graph_height,
                     margin=dict(l=10, r=10, t=30, b=30),
-                    legend=dict(font=dict(color="black", size=10))
+                    legend=dict(font=dict(color="black", size=12))
                 )
+                # Supprimer la barre de couleur
+                fig.update_layout(coloraxis_showscale=False)
 
                 # S'assurer que toutes les annotations et textes sont en noir
                 for annotation in fig.layout.annotations:
@@ -1415,15 +1527,15 @@ with layout_container:
             st.warning("No category data available for the selected filters.")
     except Exception as e:
         st.error(f"Error while displaying category data: {e}")
-    st.markdown("</div>", unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
-    # Footer avec information sur les données
-    st.markdown("""
-    <div class="footer">
-        <p>Dashboard d'analyse des vendeurs Olist - Données issues de la base de données Olist</p>
-        <p>Période analysée: {start} - {end}</p>
-    </div>
-    """.format(
-        start=start_date.strftime('%d/%m/%Y') if start_date else "Début des données",
-        end=end_date.strftime('%d/%m/%Y') if end_date else "Fin des données"
-    ), unsafe_allow_html=True)
+# Footer avec information sur les données
+st.markdown("""
+<div class="footer">
+    <p>Dashboard d'analyse des vendeurs Olist - Données issues de la base de données Olist</p>
+    <p>Période analysée: {start} - {end}</p>
+</div>
+""".format(
+    start=start_date.strftime('%d/%m/%Y') if start_date else "Début des données",
+    end=end_date.strftime('%d/%m/%Y') if end_date else "Fin des données"
+), unsafe_allow_html=True)

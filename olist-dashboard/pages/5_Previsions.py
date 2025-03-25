@@ -177,6 +177,48 @@ st.markdown("""
         color: #e53935;
         font-weight: bold;
     }
+/* Stylisation de la sidebar avec fond blanc et texte bleu */
+    .css-1d391kg, .css-1wrcr25, .css-12oz5g7, [data-testid="stSidebar"] {
+        background-color: white !important;
+    }
+
+    /* Texte et éléments de la sidebar en bleu */
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] .stSelectbox label,
+    [data-testid="stSidebar"] .stMultiSelect label,
+    [data-testid="stSidebar"] .stDateInput label,
+    [data-testid="stSidebar"] span {
+        color: #0d2b45 !important;
+        font-size: 1.1rem !important;
+        font-weight: 500 !important;
+    }
+
+    /* Police plus grande pour les éléments de la sidebar */
+    [data-testid="stSidebar"] .stSelectbox,
+    [data-testid="stSidebar"] .stMultiSelect,
+    [data-testid="stSidebar"] .stDateInput {
+        font-size: 1.1rem !important;
+    }
+
+    /* Nouveau style pour les titres de section - plus élégant */
+    .filter-section-title {
+        color: #0d2b45 !important;
+        font-weight: bold;
+        font-size: 1.2rem;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #0d2b45;
+        text-transform: uppercase;
+    }
+
+    /* Style pour les sections de filtres */
+    .filter-section {
+        margin-bottom: 25px;
+        padding-bottom: 5px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -240,13 +282,17 @@ def load_satisfaction_predictor():
     """)
 
 # Constantes pour les graphiques
-graph_height = 300
+graph_height = 400
 heatmap_height = 500
 
 
 # Filtres dans la sidebar
 with st.sidebar:
-    st.markdown("<h2 class='sub-header'>Paramètres de Prévision</h2>", unsafe_allow_html=True)
+    st.markdown('<h2 style="text-align: center; padding-bottom: 10px;">FILTRES</h2>', unsafe_allow_html=True)
+
+    # Section
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    st.markdown('<div class="filter-section-title">Paramètres de Prévision</div>', unsafe_allow_html=True)
 
     # Date de prévision
     today = datetime.now().date()
@@ -272,7 +318,8 @@ with st.sidebar:
     target_month = st.slider("Mois cible", min_value=1, max_value=12, value=today.month)
 
     # Options d'affichage
-    st.markdown("<h2 class='sub-header'>Options d'affichage</h2>", unsafe_allow_html=True)
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    st.markdown('<div class="filter-section-title">Options d''Affichage</div>', unsafe_allow_html=True)
     show_sales_pattern = st.checkbox("Afficher les tendances de ventes", value=True)
     show_seasonal_trends = st.checkbox("Afficher les tendances saisonnières", value=True)
     show_churn_risk = st.checkbox("Afficher le risque d'attrition", value=True)
@@ -458,7 +505,7 @@ if show_sales_pattern:
 
             fig2.update_layout(
                 title=dict(
-                    text='Revenu et commandes moyens par jour de la semaine',
+                    text=' ',
                     font=dict(color='black')  # Définir la couleur du titre en noir
                 ),
                 xaxis=dict(title='Jour de la semaine', color='black'),
@@ -471,7 +518,7 @@ if show_sales_pattern:
                     color='black',
                     title_font=dict(color='black')  # Définir la couleur du titre de l'axe y de droite en noir
                 ),
-                legend=dict(x=4.5, y=1.8, bgcolor='rgba(255,255,255,0.8)'),
+                legend=dict(x=4.5, y=1.2, bgcolor='rgba(255,255,255,0.8)'),
                 font=dict(color='black'),
                 xaxis_title_font=dict(color='black'),
                 yaxis_title_font=dict(color='black'),
@@ -642,8 +689,9 @@ if show_churn_risk:
                 yaxis_title_font=dict(color='black'),
                 legend_font=dict(color='black')
             )
-            fig.update_xaxes(tickfont=dict(color='black'))
-            fig.update_yaxes(tickfont=dict(color='black'))
+            # Masquer la grille verticale et afficher la grille horizontale en gris
+            fig.update_xaxes(tickfont=dict(color='black'), showgrid=False)
+            fig.update_yaxes(tickfont=dict(color='black'), showgrid=True, gridcolor='grey')
             fig.update_coloraxes(colorbar=dict(tickfont=dict(color='black'), title_font=dict(color='black')))
 
 
@@ -747,72 +795,12 @@ if show_satisfaction_predictors:
 
         if not satisfaction_predictors.empty:
 
-            st.markdown("<h3 style='color: white;'>Corélation de la satisfaction client</h3>", unsafe_allow_html=True)
+            st.markdown("<h3 style='color: white;'>Résumé tabulaire</h3>", unsafe_allow_html=True)
 
-            # Sélectionner les 10 catégories avec le plus grand nombre de commandes
-            top_categories = satisfaction_predictors.nlargest(10, 'order_count')
-
-            # Créer un graphique des corrélations
-            fig = go.Figure()
-
-            # Ajouter des barres pour chaque corrélation
-            fig.add_trace(go.Bar(
-                x=top_categories['product_category_name_english'],
-                y=top_categories['corr_delivery_time_review'],
-                name='Corrélation temps de livraison / satisfaction',
-                marker_color='#1e88e5'
-            ))
-            fig.add_trace(go.Bar(
-                x=top_categories['product_category_name_english'],
-                y=top_categories['corr_freight_ratio_review'],
-                name='Corrélation ratio de fret / satisfaction',
-                marker_color='#fb8c00'
-            ))
-            fig.add_trace(go.Bar(
-                x=top_categories['product_category_name_english'],
-                y=top_categories['corr_price_review'],
-                name='Corrélation prix / satisfaction',
-                marker_color='#43a047'
-            ))
-
-            fig.update_layout(
-                title=dict(
-                    text='Corrélations avec la satisfaction client par catégorie de produit',
-                    font=dict(color='black')  # Titre principal en noir
-                ),
-                xaxis=dict(
-                    title=dict(text='Catégorie de produit', font=dict(color='black')),  # Titre axe X en noir
-                    tickangle=45,  # Incliner les étiquettes pour éviter qu'elles ne se chevauchent
-                    tickfont=dict(color='black'),  # Étiquettes axe X en noir
-                    tickmode='array',  # Utiliser un mode de liste pour contrôler l'espacement des ticks
-                    tickvals=top_categories['product_category_name_english'],  # Ajuster les étiquettes
-                    ticktext=top_categories['product_category_name_english']  # Utiliser les valeurs exactes
-                ),
-                yaxis=dict(
-                    title=dict(text='Coefficient de corrélation', font=dict(color='black')),  # Titre axe Y en noir
-                    showgrid=True,
-                    tickfont=dict(color='black')  # Étiquettes axe Y en noir
-                ),
-                legend=dict(
-                    x=4.5,
-                    y=1.2,
-                    bgcolor='rgba(255,255,255,0.8)',
-                    font=dict(color='black')  # Texte de la légende en noir
-                ),
-                height=graph_height + 250,  # Augmenter la hauteur pour laisser de l'espace aux étiquettes X
-                paper_bgcolor='white',
-                plot_bgcolor='white',
-                font=dict(color='black'),
-                margin=dict(t=100, b=150)  # Ajouter des marges en haut et en bas pour plus d'espace
-            )
-
-            st.plotly_chart(fig, use_container_width=True)
-
-            # Afficher les données tabulaires
-            st.markdown("<h3 style='color: white;'>Résumé tabulaires</h3>", unsafe_allow_html=True)
-
+            # Sélectionner les 10 premières lignes et copier le DataFrame
             styled_predictors = satisfaction_predictors.head(10).copy()
 
+            # Renommer les colonnes pour une meilleure lisibilité
             styled_predictors = styled_predictors.rename(columns={
                 'product_category_name_english': 'Catégorie de produit',
                 'order_count': 'Nombre de commandes',
@@ -825,18 +813,50 @@ if show_satisfaction_predictors:
                 'corr_price_review': 'Corrélation prix/satisfaction'
             })
 
-            # Formater certaines colonnes numériques (autres que celles avec dégradé)
+            # Formater certaines colonnes numériques
             for col in ['Taux de livraison tardive', 'Temps de livraison moyen (jours)', 'Ratio de fret moyen']:
                 styled_predictors[col] = styled_predictors[col].apply(lambda x: f"{x:.2f}")
 
             for col in ['Corrélation temps/satisfaction', 'Corrélation fret/satisfaction', 'Corrélation prix/satisfaction']:
                 styled_predictors[col] = styled_predictors[col].apply(lambda x: f"{x:.3f}")
 
-            # S'assurer que les colonnes pour le dégradé sont numériques
+            # S'assurer que les colonnes servant au tri sont de type numérique
             styled_predictors['Nombre de commandes'] = pd.to_numeric(styled_predictors['Nombre de commandes'], errors='coerce')
             styled_predictors['Score moyen'] = pd.to_numeric(styled_predictors['Score moyen'], errors='coerce')
 
-            # Appliquer le style :
+            # Ajout d'un sélecteur pour choisir la colonne de tri
+            sort_options = {
+                'Catégorie de produit': 'Catégorie de produit',
+                'Nombre de commandes': 'Nombre de commandes',
+                'Score moyen': 'Score moyen',
+                'Taux de livraison tardive': 'Taux de livraison tardive',
+                'Temps de livraison moyen (jours)': 'Temps de livraison moyen (jours)',
+                'Ratio de fret moyen': 'Ratio de fret moyen',
+                'Corrélation temps/satisfaction': 'Corrélation temps/satisfaction',
+                'Corrélation fret/satisfaction': 'Corrélation fret/satisfaction',
+                'Corrélation prix/satisfaction': 'Corrélation prix/satisfaction'
+            }
+
+            selected_sort = st.selectbox(
+                "Trier par :",
+                options=list(sort_options.keys()),
+                format_func=lambda x: sort_options[x],
+                index=0  # Par défaut, tri par 'Catégorie de produit'
+            )
+
+            # Sélection de l'ordre de tri (ascendant ou descendant)
+            sort_order = st.radio(
+                "Ordre :",
+                ["Décroissant", "Croissant"],
+                horizontal=True,
+                index=0  # Par défaut, décroissant
+            )
+            ascending = True if sort_order == "Croissant" else False
+
+            # Appliquer le tri sur le DataFrame
+            styled_predictors = styled_predictors.sort_values(by=selected_sort, ascending=ascending)
+
+            # Appliquer le style : dégradé sur toutes les colonnes sauf 'Catégorie de produit'
             styled_df = styled_predictors.style \
                 .applymap(lambda v: 'background-color: #f0f0f0; color: black', subset=['Catégorie de produit']) \
                 .background_gradient(cmap="Blues", subset=styled_predictors.columns.difference(['Catégorie de produit'])) \
@@ -860,10 +880,10 @@ if show_satisfaction_predictors:
                     }
                 ])
 
-            # Convertir le style en HTML pour affichage dans Streamlit (uniquement une fois)
+            # Convertir le style en HTML pour affichage dans Streamlit
             html_table = styled_df.hide(axis="index").to_html()
 
-            # Afficher le tableau dans un conteneur scrollable
+            # Créer un conteneur scrollable pour le tableau
             st.markdown("""
                 <style>
                 .scrollable-table {

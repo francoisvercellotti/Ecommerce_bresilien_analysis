@@ -161,6 +161,48 @@ st.markdown("""
     .dataframe td {
         padding: 3px !important;
     }
+/* Stylisation de la sidebar avec fond blanc et texte bleu */
+    .css-1d391kg, .css-1wrcr25, .css-12oz5g7, [data-testid="stSidebar"] {
+        background-color: white !important;
+    }
+
+    /* Texte et éléments de la sidebar en bleu */
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] .stSelectbox label,
+    [data-testid="stSidebar"] .stMultiSelect label,
+    [data-testid="stSidebar"] .stDateInput label,
+    [data-testid="stSidebar"] span {
+        color: #0d2b45 !important;
+        font-size: 1.1rem !important;
+        font-weight: 500 !important;
+    }
+
+    /* Police plus grande pour les éléments de la sidebar */
+    [data-testid="stSidebar"] .stSelectbox,
+    [data-testid="stSidebar"] .stMultiSelect,
+    [data-testid="stSidebar"] .stDateInput {
+        font-size: 1.1rem !important;
+    }
+
+    /* Nouveau style pour les titres de section - plus élégant */
+    .filter-section-title {
+        color: #0d2b45 !important;
+        font-weight: bold;
+        font-size: 1.2rem;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #0d2b45;
+        text-transform: uppercase;
+    }
+
+    /* Style pour les sections de filtres */
+    .filter-section {
+        margin-bottom: 25px;
+        padding-bottom: 5px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -221,18 +263,18 @@ def load_date_range():
 
 # Constantes pour les graphiques
 # Mode détaillé par défaut
-graph_height = 300
+graph_height = 400
 heatmap_height = 600
 
 
 
 
-# Filtres dans la sidebar
 with st.sidebar:
-    st.markdown("<h2 class='sub-header'>Filtres</h2>", unsafe_allow_html=True)
+    st.markdown('<h2 style="text-align: center; padding-bottom: 10px;">FILTRES</h2>', unsafe_allow_html=True)
 
-    # Filtre de période
-    st.markdown("<h3 class='sub-header'>Période</h3>", unsafe_allow_html=True)
+    # Section PÉRIODE
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    st.markdown('<div class="filter-section-title">PÉRIODE</div>', unsafe_allow_html=True)
     try:
         date_range = load_date_range()
         if not date_range.empty:
@@ -295,8 +337,9 @@ with st.sidebar:
         if not categories_list.empty:
             all_categories = categories_list["category_name"].tolist()
 
-            # Filtre de catégories avec une option "Toutes les catégories"
-            st.markdown("<h3 class='sub-header'>Filtres de catégories</h3>", unsafe_allow_html=True)
+
+            st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+            st.markdown('<div class="filter-section-title">Catégories</div>', unsafe_allow_html=True)
 
             # Option pour sélectionner toutes les catégories ou spécifier des catégories
             select_all_categories = st.checkbox("Toutes les catégories", value=True)
@@ -396,28 +439,41 @@ with layout_container:
             category_performance = category_performance[category_performance["category_name"].isin(selected_categories)]
 
         if not category_performance.empty:
-            # Ajouter un sélecteur pour l'ordre de tri
+            # Ajouter un sélecteur pour la colonne de tri
             sort_options = {
                 "category_name": "Catégorie (A-Z)",
-                "order_count": "Nombre de commandes (décroissant)",
-                "total_revenue": "Revenu total (décroissant)",
-                "avg_price": "Prix moyen (décroissant)",
-                "avg_review_score": "Note moyenne (décroissant)",
-                "avg_freight_value": "Frais de port moyens (décroissant)"
+                "order_count": "Nombre de commandes",
+                "total_revenue": "Revenu total",
+                "avg_price": "Prix moyen",
+                "avg_review_score": "Note moyenne",
+                "avg_freight_value": "Frais de port moyens"
             }
 
-            selected_sort = st.selectbox(
-                "Trier par:",
-                options=list(sort_options.keys()),
-                format_func=lambda x: sort_options[x],
-                index=2  # Par défaut, tri par revenu total
-            )
+            # Créer deux colonnes pour le tri
+            col1, col2 = st.columns([3, 1])
 
-            # Trier le DataFrame selon la colonne sélectionnée (ordre décroissant par défaut, sauf pour category_name)
-            if selected_sort == "category_name":
-                category_performance = category_performance.sort_values(by=selected_sort, ascending=True)
-            else:
-                category_performance = category_performance.sort_values(by=selected_sort, ascending=False)
+            with col1:
+                selected_sort = st.selectbox(
+                    "Trier par:",
+                    options=list(sort_options.keys()),
+                    format_func=lambda x: sort_options[x],
+                    index=2  # Par défaut, tri par revenu total
+                )
+
+            with col2:
+                # Ajouter un sélecteur pour l'ordre de tri
+                sort_ascending = st.radio(
+                    "Ordre:",
+                    options=["Décroissant", "Croissant"],
+                    horizontal=True,
+                    index=0  # Par défaut, décroissant
+                )
+
+                # Convertir le choix en valeur booléenne
+                is_ascending = sort_ascending == "Croissant"
+
+            # Trier le DataFrame selon la colonne sélectionnée et l'ordre choisi
+            category_performance = category_performance.sort_values(by=selected_sort, ascending=is_ascending)
 
             # Dupliquer le DataFrame pour conserver les valeurs numériques pour le style
             numeric_df = category_performance.copy()
@@ -495,18 +551,28 @@ with layout_container:
     # Graphiques de performance des catégories
     col1, col2 = st.columns(2)
 
+
     with col1:
         st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
-        st.markdown("<h3>Top 10 des catégories par Revenu total</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='color: white;'>Top 10 des catégories par Revenu total</h3>", unsafe_allow_html=True)
 
-        # Définir une métrique fixe pour le graphique (maintenant que nous avons supprimé le sélecteur)
+        # Définir une métrique fixe pour le graphique
         default_metric = "total_revenue"
-        metric_label = "Revenu total"
+        metric_label = "Chiffre d'affaires (R$)"
 
         try:
             if not category_performance.empty:
                 # Tri et sélection des 10 meilleures catégories selon la métrique fixe
                 top_categories = category_performance.sort_values(by=default_metric, ascending=False).head(10)
+
+                # Création d'un dégradé de bleu personnalisé (commençant par un bleu plus foncé)
+                custom_blues = [
+                    '#5dade2',
+                    '#3498db',
+                    '#2980b9',
+                    '#2475b0',
+                    '#1e3799'
+                ]
 
                 fig_cat = px.bar(
                     top_categories,
@@ -515,34 +581,37 @@ with layout_container:
                     orientation='h',
                     labels={"category_name": "Catégorie", default_metric: metric_label},
                     color=default_metric,
-                    color_continuous_scale="Viridis"
+                    color_continuous_scale=custom_blues
                 )
 
-                # Configuration du graphique
+                # Mise à jour du layout
                 fig_cat.update_layout(
+                    height=graph_height,
+                    font_size=14,
+                    font_color="black",
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(family="Arial, sans-serif", size=10, color="black"),
-                    xaxis=dict(
-                        title=dict(text=metric_label, font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
-                    ),
-                    yaxis=dict(
-                        categoryorder='total ascending',
-                        title=dict(text="", font=dict(color="black", size=10)),
-                        tickfont=dict(color="black", size=10)
-                    ),
-                    height=graph_height,
-                    margin=dict(l=10, r=10, t=10, b=10)
+                    margin=dict(l=20, r=10, t=5, b=20)
                 )
 
-                # Modification de la colorbar
-                fig_cat.update_coloraxes(
-                    colorbar=dict(
-                        title_font=dict(color='black'),
-                        tickfont=dict(color='black')
-                    )
+                # Mise à jour des axes
+                fig_cat.update_xaxes(
+                    tickfont_size=12,
+                    title_text=metric_label,
+                    title_font_size=14,
+                    title_font_color="black",
+                    tickfont_color="black"
                 )
+
+                fig_cat.update_yaxes(
+                    tickfont_size=12,
+                    categoryorder='total ascending',
+                    title_text="",  # Pas de titre pour l'axe Y
+                    tickfont_color="black"
+                )
+
+                # Masquer la barre de couleur
+                fig_cat.update_coloraxes(showscale=False)
 
                 st.plotly_chart(fig_cat, use_container_width=True)
 
@@ -553,6 +622,7 @@ with layout_container:
             st.error(f"Erreur lors de l'affichage du top des catégories: {e}")
 
         st.markdown("</div>", unsafe_allow_html=True)
+
 
     with col2:
         st.markdown("<div class='graph-container'>", unsafe_allow_html=True)
@@ -632,7 +702,6 @@ with layout_container:
             else:
                 trend_data = category_trend
 
-            # Dans la section où vous créez le graphique d'évolution des ventes
             fig = px.line(
                 trend_data,
                 x="order_month",
@@ -650,14 +719,18 @@ with layout_container:
                     # Ajoutez ces lignes pour adapter l'axe x à la période
                     type="date",  # Spécifier que c'est un axe de date
                     range=[trend_data["order_month"].min(), trend_data["order_month"].max()],  # Définir la plage en fonction des données filtrées
-                    tickformat="%b %Y"  # Format d'affichage des dates (mois année)
+                    tickformat="%b %Y",  # Format d'affichage des dates (mois année)
+                    showgrid=False,  # Activer la grille
+                    gridcolor='rgba(220, 220, 220, 0.8)'  # Couleur gris clair pour la grille
                 ),
                 yaxis=dict(
                     title=dict(text="Revenu total (R$)", font=dict(color="black", size=10)),
-                    tickfont=dict(color="black", size=8)
+                    tickfont=dict(color="black", size=10),
+                    showgrid=True,  # Activer la grille
+                    gridcolor='rgba(220, 220, 220, 0.8)'  # Couleur gris clair pour la grille
                 ),
                 legend=dict(
-                    font=dict(size=10, color="black"),
+                    font=dict(size=12, color="black"),
                     orientation="h",
                     yanchor="bottom",
                     y=1.02,
