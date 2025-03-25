@@ -1,0 +1,15 @@
+2025-03-25 14:34:09,486 - INFO: Début de la maintenance de la base de données
+2025-03-25 14:34:10,270 - INFO: ANALYZE effectué pour la table orders
+2025-03-25 14:34:10,519 - INFO: ANALYZE effectué pour la table customers
+2025-03-25 14:34:10,812 - INFO: ANALYZE effectué pour la table order_items
+2025-03-25 14:34:10,921 - INFO: ANALYZE effectué pour la table products
+2025-03-25 14:34:10,932 - INFO: ANALYZE effectué pour la table sellers
+2025-03-25 14:34:11,153 - INFO: ANALYZE effectué pour la table order_reviews
+2025-03-25 14:34:11,559 - INFO: REINDEX effectué pour l'index idx_orders_order_id
+2025-03-25 14:34:11,700 - INFO: REINDEX effectué pour l'index idx_orders_customer_id
+2025-03-25 14:34:11,934 - INFO: REINDEX effectué pour l'index idx_order_items_product_id
+2025-03-25 14:34:12,147 - INFO: REINDEX effectué pour l'index idx_customers_id
+2025-03-25 14:34:12,428 - INFO: REINDEX effectué pour l'index idx_order_reviews_order_id
+2025-03-25 14:34:12,825 - INFO: REINDEX effectué pour l'index idx_customers_unique_id
+2025-03-25 14:34:12,826 - INFO: Maintenance terminée à 2025-03-25 14:34:09.934710+01:00
+2025-03-25 14:34:12,837 - INFO: Maintenance de la base de données terminée avec succès

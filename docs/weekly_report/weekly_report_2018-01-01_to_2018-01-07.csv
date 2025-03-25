@@ -1,0 +1,2 @@
+report_start_date,report_end_date,total_orders,total_revenue,unique_customers,avg_order_value,new_customer_count,total_delivered,late_deliveries,avg_delivery_days,avg_review_score,total_reviews,positive_reviews,negative_reviews
+2018-01-01,2018-01-07,1177,179273.31,1171,133.68628635346755,1150,1017,188,19.72680646600386,4.058773424190801,1174,881,179
