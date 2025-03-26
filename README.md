@@ -42,7 +42,7 @@ Ce projet est une solution complète d'ingénierie de données et d'intelligence
   - Performance des Vendeurs
 
 ## 🧰 Compétences Techniques Démontrées
-- SQL Avancé
+- SQL Avancé (postgresql)
 - Optimisation de Base de Données
 - Programmation Python
 - ORM SQLAlchemy
