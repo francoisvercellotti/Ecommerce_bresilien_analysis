@@ -31,180 +31,164 @@ st.markdown("""
 # Ajout de CSS personnalisé
 st.markdown("""
 <style>
-    /* Fond bleu marine et texte blanc pour le corps principal */
-    .main {
-        background-color: #0d2b45;
-        color: white !important;
+    /* Reset et base */
+    :root {
+        --primary-bg: #0d2b45;
+        --primary-text: white;
+        --metric-blue: #1e88e5;
+        --metric-green: #43a047;
+        --metric-orange: #fb8c00;
+        --metric-purple: #8e24aa;
+        --sidebar-bg: white;
+        --sidebar-text: #0d2b45;
     }
 
-    /* Styles pour les en-têtes */
+    /* Styles globaux de l'application */
+    .stApp {
+        background-color: var(--primary-bg) !important;
+        color: var(--primary-text) !important;
+        font-family: 'Arial', sans-serif;
+    }
+
+    /* Conteneurs principaux */
+    .main {
+        background-color: var(--primary-bg);
+        color: var(--primary-text) !important;
+        padding: 10px;
+    }
+
+    .main .block-container {
+        padding: 10px !important;
+        max-width: 100%;
+    }
+
+    /* En-têtes */
     .main-header {
         font-size: 2rem;
-        color: white !important;
+        color: var(--primary-text) !important;
         margin-bottom: 0.5rem;
     }
+
     .sub-header {
         font-size: 1.25rem;
-        color: white !important;
+        color: var(--primary-text) !important;
         margin-bottom: 0.3rem;
     }
 
-    /* Carte pour les métriques avec couleurs différentes */
+    /* Métriques */
     .metric-card {
-        background-color: #1e88e5;
-        border-radius: 10px;
-        padding: 10px;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-        color: white;
-        margin-bottom: 8px;
         display: flex;
         align-items: center;
         justify-content: space-between;
+        background-color: var(--metric-blue);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        min-height: 90px;
+        width: 100%;
+        overflow: hidden;
     }
+
     .metric-card .metric-label {
-        font-size: 1.25rem;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
+
     .metric-card .metric-value {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         font-weight: bold;
-    }
-    .metric-card-cohort {
-        background-color: #1e88e5;
-    }
-    .metric-card-retention {
-        background-color: #43a047;
-    }
-    .metric-card-revenue {
-        background-color: #fb8c00;
-    }
-    .metric-card-aov {
-        background-color: #8e24aa;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    /* Suppression du style par défaut des métriques Streamlit */
-    .metric-container {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
+    /* Variations de couleurs pour métriques */
+    .metric-card-cohort { background-color: var(--metric-blue); }
+    .metric-card-retention { background-color: var(--metric-green); }
+    .metric-card-revenue { background-color: var(--metric-orange); }
+    .metric-card-aov { background-color: var(--metric-purple); }
 
-    /* Style pour les graphiques */
+    /* Graphiques */
     .graph-container {
         background-color: white;
         border-radius: 6px;
-        padding: 5px;
-        margin-bottom: 6px;
-        color: black;
-        box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        padding: 10px;
+        margin-bottom: 10px;
+        box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
     }
 
-    /* Titres des graphiques */
     .graph-container h3 {
         color: black !important;
-        margin-top: 0;
-        margin-bottom: 2px;
-        font-size: 0.85rem;
-        padding: 0;
-        line-height: 1.2;
+        margin: 0 0 10px 0;
+        font-size: 1rem;
     }
 
-    /* Footer */
-    .footer {
-        color: #b0bec5;
-        text-align: center;
-        margin-top: 8px;
-        font-size: 0.7rem;
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background-color: var(--sidebar-bg) !important;
     }
 
-    /* Override Streamlit defaults */
-    .stApp {
-        background-color: #0d2b45;
+    [data-testid="stSidebar"] * {
+        color: var(--sidebar-text) !important;
     }
 
-    /* Ajustez la taille des conteneurs */
-    .main .block-container {
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-    }
-
-    /* Réduisez l'espace entre les éléments */
-    .main .element-container {
-        margin-bottom: 0.25rem;
-    }
-
-    /* Rendre les textes blancs dans le tableau de bord principal */
-    .stMarkdown, .stText, .stMarkdown p, .stMarkdown h1, .stMarkdown h2 {
-        color: white !important;
-    }
-
-    /* Info boxes */
-    .stAlert {
-        background-color: #1e3a5f;
-        color: white;
-    }
-
-    /* Assurer que les textes dans les conteneurs graphiques sont noirs */
-    .graph-container p, .graph-container h1, .graph-container h2, .graph-container h3, .graph-container .stMarkdown {
-        color: black !important;
-    }
-
-    /* Style pour les tableaux */
-    .dataframe {
-        font-size: 0.7rem;
-    }
-    .dataframe th {
-        background-color: #1e3a5f;
-        color: white !important;
-        padding: 3px !important;
-    }
-    .dataframe td {
-        padding: 3px !important;
-    }
-
-    /* Style pour les légendes des graphiques */
-    .js-plotly-plot .legend text {
-        fill: black !important;
-    }
-/* Stylisation de la sidebar avec fond blanc et texte bleu */
-    .css-1d391kg, .css-1wrcr25, .css-12oz5g7, [data-testid="stSidebar"] {
-        background-color: white !important;
-    }
-
-    /* Texte et éléments de la sidebar en bleu */
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3,
-    [data-testid="stSidebar"] p,
-    [data-testid="stSidebar"] .stSelectbox label,
-    [data-testid="stSidebar"] .stMultiSelect label,
-    [data-testid="stSidebar"] .stDateInput label,
-    [data-testid="stSidebar"] span {
-        color: #0d2b45 !important;
-        font-size: 1.1rem !important;
-        font-weight: 500 !important;
-    }
-
-    /* Police plus grande pour les éléments de la sidebar */
+    /* Éléments de la sidebar */
     [data-testid="stSidebar"] .stSelectbox,
     [data-testid="stSidebar"] .stMultiSelect,
     [data-testid="stSidebar"] .stDateInput {
-        font-size: 1.1rem !important;
-    }
-
-    /* Nouveau style pour les titres de section - plus élégant */
-    .filter-section-title {
-        color: #0d2b45 !important;
-        font-weight: bold;
-        font-size: 1.2rem;
-        padding-bottom: 5px;
+        width: 100%;
+        max-width: 250px;
         margin-bottom: 10px;
-        border-bottom: 2px solid #0d2b45;
-        text-transform: uppercase;
     }
 
-    /* Style pour les sections de filtres */
-    .filter-section {
-        margin-bottom: 25px;
-        padding-bottom: 5px;
+    [data-testid="stSidebar"] .stSelectbox label,
+    [data-testid="stSidebar"] .stMultiSelect label,
+    [data-testid="stSidebar"] .stDateInput label {
+        font-size: 0.9rem !important;
+        margin-bottom: 5px;
+    }
+
+    /* Tableaux */
+    .dataframe {
+        font-size: 0.8rem;
+        width: 100%;
+    }
+
+    .dataframe th {
+        background-color: #1e3a5f;
+        color: white !important;
+        padding: 5px;
+    }
+
+    .dataframe td {
+        padding: 5px;
+    }
+
+    /* Textes */
+    .stMarkdown, .stText {
+        color: var(--primary-text) !important;
+    }
+
+    /* Responsive Design */
+    @media screen and (max-width: 768px) {
+        .metric-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .metric-card .metric-label,
+        .metric-card .metric-value {
+            width: 100%;
+            text-align: left;
+        }
+    }
+
+    /* Override Streamlit defaults */
+    .stApp > div > div {
+        max-width: 100% !important;
     }
 </style>
 """, unsafe_allow_html=True)
