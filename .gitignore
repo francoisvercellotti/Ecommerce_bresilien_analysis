@@ -36,3 +36,8 @@ htmlcov/
 
 # Fichiers VSCode
 .vscode/
+
+# Autres fichiers
+logs/
+utils/convert_video.py
+docs/cleaning_report/
