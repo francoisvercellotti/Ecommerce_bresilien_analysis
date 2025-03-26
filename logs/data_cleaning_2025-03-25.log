@@ -1,0 +1,166 @@
+2025-03-25 17:03:01,303 - INFO: Début du nettoyage des données
+2025-03-25 17:03:01,601 - INFO: Nettoyage de la table order_items
+2025-03-25 17:03:02,220 - INFO: Données chargées pour order_items: 112650 lignes
+2025-03-25 17:03:02,281 - INFO: Nettoyage des outliers pour price: 8427 valeurs modifiées
+2025-03-25 17:03:02,299 - INFO: Nettoyage des outliers pour freight_value: 12134 valeurs modifiées
+2025-03-25 17:03:08,419 - INFO: Données nettoyées sauvegardées pour order_items
+2025-03-25 17:03:08,423 - INFO: Nettoyage de la table customers
+2025-03-25 17:03:08,659 - INFO: Données chargées pour customers: 99441 lignes
+2025-03-25 17:03:14,690 - INFO: Données nettoyées sauvegardées pour customers
+2025-03-25 17:03:14,696 - INFO: Nettoyage de la table sellers
+2025-03-25 17:03:14,725 - INFO: Données chargées pour sellers: 3095 lignes
+2025-03-25 17:03:18,615 - INFO: Données nettoyées sauvegardées pour sellers
+2025-03-25 17:03:18,628 - INFO: Rapport de nettoyage généré : /mnt/c/Users/mrgxl/Documents/cours françois/Projets/ecommerce_bresilien_analysis/docs/cleaning_report/cleaning_report_2025-03-25.md
+2025-03-25 17:03:18,629 - INFO: Nettoyage des données terminé avec succès
+2025-03-25 17:29:29,674 - INFO: Début du nettoyage des données
+2025-03-25 17:29:29,965 - INFO: Nettoyage de la table order_items
+2025-03-25 17:29:30,660 - INFO: Données chargées pour order_items: 112650 lignes
+2025-03-25 17:29:30,724 - INFO: Nettoyage des outliers pour price: 8427 valeurs modifiées
+2025-03-25 17:29:30,740 - INFO: Nettoyage des outliers pour freight_value: 12134 valeurs modifiées
+2025-03-25 17:29:38,824 - INFO: Données nettoyées sauvegardées pour order_items
+2025-03-25 17:29:38,829 - INFO: Nettoyage de la table customers
+2025-03-25 17:29:39,053 - INFO: Données chargées pour customers: 99441 lignes
+2025-03-25 17:29:46,580 - INFO: Données nettoyées sauvegardées pour customers
+2025-03-25 17:29:46,590 - INFO: Nettoyage de la table sellers
+2025-03-25 17:29:46,622 - INFO: Données chargées pour sellers: 3095 lignes
+2025-03-25 17:29:50,497 - INFO: Données nettoyées sauvegardées pour sellers
+2025-03-25 17:29:50,513 - INFO: Rapport de nettoyage généré : /mnt/c/Users/mrgxl/Documents/cours françois/Projets/ecommerce_bresilien_analysis/docs/cleaning_report/cleaning_report_2025-03-25.md
+2025-03-25 17:29:50,513 - INFO: Nettoyage des données terminé avec succès
+2025-03-25 17:38:33,011 - INFO: Début du nettoyage des données
+2025-03-25 17:38:33,291 - INFO: Nettoyage de la table order_items
+2025-03-25 17:38:34,035 - INFO: Données chargées pour order_items: 112650 lignes
+2025-03-25 17:38:34,093 - INFO: Nettoyage des outliers pour price: 8427 valeurs modifiées
+2025-03-25 17:38:34,110 - INFO: Nettoyage des outliers pour freight_value: 12134 valeurs modifiées
+2025-03-25 17:38:43,091 - INFO: Données nettoyées sauvegardées pour order_items
+2025-03-25 17:38:43,095 - INFO: Nettoyage de la table customers
+2025-03-25 17:38:43,286 - INFO: Données chargées pour customers: 99441 lignes
+2025-03-25 17:38:51,129 - INFO: Données nettoyées sauvegardées pour customers
+2025-03-25 17:38:51,131 - INFO: Nettoyage de la table sellers
+2025-03-25 17:38:51,164 - INFO: Données chargées pour sellers: 3095 lignes
+2025-03-25 17:38:55,283 - INFO: Données nettoyées sauvegardées pour sellers
+2025-03-25 17:38:55,293 - INFO: Rapport de nettoyage généré : /mnt/c/Users/mrgxl/Documents/cours françois/Projets/ecommerce_bresilien_analysis/docs/cleaning_report/cleaning_report_2025-03-25.md
+2025-03-25 17:38:55,294 - INFO: Nettoyage des données terminé avec succès
+2025-03-25 17:52:07,220 - INFO: Début du nettoyage des données
+2025-03-25 17:52:07,633 - INFO: Nettoyage de la table order_items
+2025-03-25 17:52:08,363 - INFO: Données chargées pour order_items: 112650 lignes
+2025-03-25 17:52:08,426 - INFO: Nettoyage des outliers pour price: 8427 valeurs modifiées
+2025-03-25 17:52:08,443 - INFO: Nettoyage des outliers pour freight_value: 12134 valeurs modifiées
+2025-03-25 17:52:08,449 - ERROR: Erreur lors de la sauvegarde des données nettoyées pour order_items: 'Engine' object has no attribute 'execute'
+2025-03-25 17:52:08,449 - INFO: Nettoyage de la table customers
+2025-03-25 17:52:08,639 - INFO: Données chargées pour customers: 99441 lignes
+2025-03-25 17:52:08,765 - ERROR: Erreur lors de la sauvegarde des données nettoyées pour customers: 'Engine' object has no attribute 'execute'
+2025-03-25 17:52:08,765 - INFO: Nettoyage de la table sellers
+2025-03-25 17:52:08,774 - INFO: Données chargées pour sellers: 3095 lignes
+2025-03-25 17:52:08,795 - ERROR: Erreur lors de la sauvegarde des données nettoyées pour sellers: 'Engine' object has no attribute 'execute'
+2025-03-25 17:52:08,801 - INFO: Rapport de nettoyage généré : /mnt/c/Users/mrgxl/Documents/cours françois/Projets/ecommerce_bresilien_analysis/docs/cleaning_report/cleaning_report_2025-03-25.md
+2025-03-25 17:52:08,801 - INFO: Nettoyage des données terminé avec succès
+2025-03-25 17:57:44,106 - INFO: Début du nettoyage des données
+2025-03-25 17:57:44,586 - INFO: Nettoyage de la table order_items
+2025-03-25 17:57:45,996 - INFO: Données chargées pour order_items: 112650 lignes
+2025-03-25 17:57:46,069 - INFO: Nettoyage des outliers pour price: 8427 valeurs modifiées
+2025-03-25 17:57:46,086 - INFO: Nettoyage des outliers pour freight_value: 12134 valeurs modifiées
+2025-03-25 17:57:54,989 - INFO: Données nettoyées sauvegardées pour order_items
+2025-03-25 17:57:54,990 - INFO: Nettoyage de la table customers
+2025-03-25 17:57:55,566 - INFO: Données chargées pour customers: 99441 lignes
+2025-03-25 17:58:02,670 - INFO: Données nettoyées sauvegardées pour customers
+2025-03-25 17:58:02,671 - INFO: Nettoyage de la table sellers
+2025-03-25 17:58:02,704 - INFO: Données chargées pour sellers: 3095 lignes
+2025-03-25 17:58:22,473 - INFO: Données nettoyées sauvegardées pour sellers
+2025-03-25 17:58:22,484 - INFO: Rapport de nettoyage généré : /mnt/c/Users/mrgxl/Documents/cours françois/Projets/ecommerce_bresilien_analysis/docs/cleaning_report/cleaning_report_2025-03-25.md
+2025-03-25 17:58:22,484 - INFO: Nettoyage des données terminé avec succès
+2025-03-25 18:18:41,160 - INFO: Début du nettoyage des données
+2025-03-25 18:18:41,730 - INFO: Nettoyage de la table order_items
+2025-03-25 18:18:44,204 - INFO: Données chargées pour order_items: 112650 lignes
+2025-03-25 18:18:44,268 - INFO: Nettoyage des outliers pour price: 8427 valeurs modifiées
+2025-03-25 18:18:44,290 - INFO: Nettoyage des outliers pour freight_value: 12134 valeurs modifiées
+2025-03-25 18:18:56,416 - INFO: Données nettoyées sauvegardées pour order_items
+2025-03-25 18:18:56,416 - INFO: Nettoyage de la table customers
+2025-03-25 18:18:56,712 - INFO: Données chargées pour customers: 99441 lignes
+2025-03-25 18:19:05,326 - INFO: Données nettoyées sauvegardées pour customers
+2025-03-25 18:19:05,327 - INFO: Nettoyage de la table sellers
+2025-03-25 18:19:05,367 - INFO: Données chargées pour sellers: 3095 lignes
+2025-03-25 18:19:25,732 - INFO: Données nettoyées sauvegardées pour sellers
+2025-03-25 18:19:25,738 - INFO: Rapport de nettoyage généré : /mnt/c/Users/mrgxl/Documents/cours françois/Projets/ecommerce_bresilien_analysis/docs/cleaning_report/cleaning_report_2025-03-25.md
+2025-03-25 18:19:25,738 - INFO: Nettoyage des données terminé avec succès
+2025-03-25 20:25:26,249 - INFO: Début du nettoyage des données
+2025-03-25 20:25:26,904 - INFO: Nettoyage de la table order_items
+2025-03-25 20:25:32,309 - INFO: Données chargées pour order_items: 112650 lignes
+2025-03-25 20:25:32,428 - INFO: Nettoyage des outliers pour price: 8427 valeurs modifiées
+2025-03-25 20:25:32,454 - INFO: Nettoyage des outliers pour freight_value: 12134 valeurs modifiées
+2025-03-25 20:25:32,460 - INFO: Tentative de sauvegarde pour order_items
+2025-03-25 20:25:32,461 - INFO: Nombre de lignes à sauvegarder : 112650
+2025-03-25 20:25:32,701 - INFO: Nombre de lignes avant suppression : 112650
+2025-03-25 20:25:45,605 - INFO: Nombre de lignes après sauvegarde : 112650
+2025-03-25 20:25:45,606 - INFO: Nettoyage de la table customers
+2025-03-25 20:25:46,160 - INFO: Données chargées pour customers: 99441 lignes
+2025-03-25 20:25:46,332 - INFO: Tentative de sauvegarde pour customers
+2025-03-25 20:25:46,333 - INFO: Nombre de lignes à sauvegarder : 99441
+2025-03-25 20:25:46,340 - INFO: Nombre de lignes avant suppression : 99441
+2025-03-25 20:26:00,595 - INFO: Nombre de lignes après sauvegarde : 99441
+2025-03-25 20:26:00,596 - INFO: Nettoyage de la table sellers
+2025-03-25 20:26:00,604 - INFO: Données chargées pour sellers: 3095 lignes
+2025-03-25 20:26:00,639 - INFO: Tentative de sauvegarde pour sellers
+2025-03-25 20:26:00,639 - INFO: Nombre de lignes à sauvegarder : 3095
+2025-03-25 20:26:00,641 - INFO: Nombre de lignes avant suppression : 3095
+2025-03-25 20:26:26,571 - INFO: Nombre de lignes après sauvegarde : 3095
+2025-03-25 20:26:26,578 - INFO: Rapport de nettoyage généré : /mnt/c/Users/mrgxl/Documents/cours françois/Projets/ecommerce_bresilien_analysis/docs/cleaning_report/cleaning_report_2025-03-25.md
+2025-03-25 20:26:26,578 - INFO: Nettoyage des données terminé avec succès
+2025-03-25 21:15:09,402 - INFO: Début du nettoyage des données
+2025-03-25 21:15:08,891 - INFO: Nettoyage de la table order_items
+2025-03-25 21:15:09,681 - INFO: Données chargées pour order_items: 112650 lignes
+2025-03-25 21:15:09,795 - INFO: Nettoyage des outliers pour price: 8427 valeurs modifiées
+2025-03-25 21:15:09,823 - INFO: Nettoyage des outliers pour freight_value: 12134 valeurs modifiées
+2025-03-25 21:18:14,276 - INFO: Début du nettoyage des données
+2025-03-25 21:18:14,691 - INFO: Nettoyage de la table order_items
+2025-03-25 21:18:15,563 - INFO: Données chargées pour order_items: 112650 lignes
+2025-03-25 21:18:15,723 - INFO: Statistiques descriptives pour price:
+2025-03-25 21:18:15,723 - INFO: Moyenne : 120.65373901464716
+2025-03-25 21:18:15,724 - INFO: Médiane : 74.99
+2025-03-25 21:18:15,724 - INFO: Écart-type : 183.63392805025939
+2025-03-25 21:18:15,784 - INFO: 
+Diagnostic des outliers pour price:
+2025-03-25 21:18:15,785 - INFO: Borne inférieure : -102.6
+2025-03-25 21:18:15,785 - INFO: Borne supérieure : 277.4
+2025-03-25 21:18:15,786 - INFO: Nombre d'outliers : 8427
+2025-03-25 21:18:15,790 - INFO: Nettoyage des outliers pour price: 8427 valeurs modifiées
+2025-03-25 21:18:15,799 - INFO: Statistiques descriptives pour freight_value:
+2025-03-25 21:18:15,801 - INFO: Moyenne : 19.990319928983578
+2025-03-25 21:18:15,802 - INFO: Médiane : 16.26
+2025-03-25 21:18:15,803 - INFO: Écart-type : 15.806405412297083
+2025-03-25 21:18:15,808 - INFO: 
+Diagnostic des outliers pour freight_value:
+2025-03-25 21:18:15,808 - INFO: Borne inférieure : 0.9750000000000032
+2025-03-25 21:18:15,809 - INFO: Borne supérieure : 33.254999999999995
+2025-03-25 21:18:15,809 - INFO: Nombre d'outliers : 12134
+2025-03-25 21:18:15,814 - INFO: Nettoyage des outliers pour freight_value: 12134 valeurs modifiées
+2025-03-25 21:18:22,331 - INFO: Données nettoyées sauvegardées pour order_items
+2025-03-25 21:18:22,331 - INFO: Nombre de lignes sauvegardées : 112650
+2025-03-25 21:18:22,332 - INFO: Nettoyage de la table customers
+2025-03-25 21:18:22,563 - INFO: Données chargées pour customers: 99441 lignes
+2025-03-25 21:18:29,834 - INFO: Données nettoyées sauvegardées pour customers
+2025-03-25 21:18:29,835 - INFO: Nombre de lignes sauvegardées : 99441
+2025-03-25 21:18:29,835 - INFO: Nettoyage de la table sellers
+2025-03-25 21:18:29,845 - INFO: Données chargées pour sellers: 3095 lignes
+2025-03-25 21:18:34,474 - INFO: Données nettoyées sauvegardées pour sellers
+2025-03-25 21:18:34,474 - INFO: Nombre de lignes sauvegardées : 3095
+2025-03-25 21:18:34,490 - INFO: Rapport de nettoyage généré : /mnt/c/Users/mrgxl/Documents/cours françois/Projets/ecommerce_bresilien_analysis/docs/cleaning_report/cleaning_report_2025-03-25.md
+2025-03-25 21:18:34,491 - INFO: Nettoyage des données terminé avec succès
+2025-03-25 21:23:47,472 - INFO: Début du nettoyage des données
+2025-03-25 21:23:47,959 - INFO: Nettoyage de la table order_items
+2025-03-25 21:23:48,887 - INFO: Données chargées pour order_items: 112650 lignes
+2025-03-25 21:23:48,950 - INFO: NaN dans price remplacés par 74.99
+2025-03-25 21:23:48,952 - INFO: NaN dans freight_value remplacés par 16.26
+2025-03-25 21:23:49,027 - INFO: Rapport de nettoyage généré : /mnt/c/Users/mrgxl/Documents/cours françois/Projets/ecommerce_bresilien_analysis/docs/cleaning_report/cleaning_report_order_items_2025-03-25.md
+2025-03-25 21:23:57,095 - INFO: Données nettoyées sauvegardées pour order_items
+2025-03-25 21:23:57,096 - INFO: Nombre de lignes sauvegardées : 112650
+2025-03-25 21:23:57,097 - INFO: Nettoyage de la table customers
+2025-03-25 21:23:57,341 - INFO: Données chargées pour customers: 99441 lignes
+2025-03-25 21:23:57,540 - INFO: Rapport de nettoyage généré : /mnt/c/Users/mrgxl/Documents/cours françois/Projets/ecommerce_bresilien_analysis/docs/cleaning_report/cleaning_report_customers_2025-03-25.md
+2025-03-25 21:24:05,415 - INFO: Données nettoyées sauvegardées pour customers
+2025-03-25 21:24:05,416 - INFO: Nombre de lignes sauvegardées : 99441
+2025-03-25 21:24:05,416 - INFO: Nettoyage de la table sellers
+2025-03-25 21:24:05,426 - INFO: Données chargées pour sellers: 3095 lignes
+2025-03-25 21:24:05,472 - INFO: Rapport de nettoyage généré : /mnt/c/Users/mrgxl/Documents/cours françois/Projets/ecommerce_bresilien_analysis/docs/cleaning_report/cleaning_report_sellers_2025-03-25.md
+2025-03-25 21:24:10,029 - INFO: Données nettoyées sauvegardées pour sellers
+2025-03-25 21:24:10,030 - INFO: Nombre de lignes sauvegardées : 3095
+2025-03-25 21:24:10,030 - INFO: Nettoyage des données terminé avec succès
