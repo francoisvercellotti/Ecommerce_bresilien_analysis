@@ -4,6 +4,11 @@
 
 Ce projet est une solution complète d'ingénierie de données et d'intelligence commerciale pour analyser Olist, une plateforme e-commerce brésilienne. En exploitant une modélisation de données avancée, des scripts Python et une visualisation interactive, le projet transforme des données brutes de commerce électronique en informations exploitables.
 
+## Démo du Tableau de Bord
+
+![Démonstration du tableau de bord](assets/screencast.gif)
+
+
 ## 🔍 Caractéristiques du Jeu de Données
 - **Plateforme** : Olist E-commerce
 - **Période des Données** : 2016-2018
@@ -50,13 +55,11 @@ Ce projet est une solution complète d'ingénierie de données et d'intelligence
 
 ### Scripts de Documentation
 - Génération de documentation technique
-- Catalogage des objets de base de données
-- Création de référentiels de référence complets
+- Catalogage des objets de base de données (vues,fonctions,procédure,kpi)
 
 ### Scripts de Reporting
 - Génération de rapports de KPI périodiques
 - Suivi des métriques clés
-- Contextualisation des données
 
 ### Scripts de Maintenance
 - Analyse des performances de base de données
@@ -67,7 +70,7 @@ Ce projet est une solution complète d'ingénierie de données et d'intelligence
 ### Scripts de Prétraitement des Données
 - Détection d'anomalies
 - Nettoyage automatisé des données
-- Préparation des jeux de données pour l'analyse
+
 
 ## 🔗 Prérequis
 - Python 3.11
