@@ -68,7 +68,7 @@ st.markdown("""
         }
 
         .metric-card .metric-label {
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             margin-bottom: 10px;
             white-space: nowrap;
             overflow: hidden;

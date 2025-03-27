@@ -29,179 +29,213 @@ st.markdown("""
 
 # Ajout de CSS personnalisé
 st.markdown("""
-<style>
-    /* Fond bleu marine et texte blanc pour le corps principal */
-    .main {
-        background-color: #0d2b45;
-        color: white !important;
-    }
+    <style>
+        /* Fond bleu marine et texte blanc pour le corps principal */
+        .main {
+            background-color: #0d2b45;
+            color: white !important;
+        }
 
-    /* Styles pour les en-têtes */
-    .main-header {
-        font-size: 2rem;
-        color: white !important;
-        margin-bottom: 0.5rem;
-    }
-    .sub-header {
-        font-size: 1.25rem;
-        color: white !important;
-        margin-bottom: 0.3rem;
-    }
+        /* Styles pour les en-têtes */
+        .main-header {
+            font-size: 2rem;
+            color: white !important;
+            margin-bottom: 0.5rem;
+        }
+        .sub-header {
+            font-size: 1.25rem;
+            color: white !important;
+            margin-bottom: 0.3rem;
+        }
 
-    /* Carte pour les métriques avec couleurs différentes */
-    .metric-card {
-        background-color: #1e88e5;
-        border-radius: 10px;
-        padding: 10px;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-        color: white;
-        margin-bottom: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .metric-card .metric-label {
-        font-size: 1.25rem;
-    }
-    .metric-card .metric-value {
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
-    .metric-card-customers {
-        background-color: #1e88e5;
-    }
-    .metric-card-spend {
-        background-color: #43a047;
-    }
-    .metric-card-frequency {
-        background-color: #fb8c00;
-    }
-    .metric-card-clv {
-        background-color: #8e24aa;
-    }
+        /* Carte pour les métriques avec couleurs différentes et taille fixe */
+        .metric-card {
+            background-color: #1e88e5;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            color: white;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 180px; /* Hauteur fixe */
+            width: 100%; /* Largeur complète */
+            box-sizing: border-box; /* Pour inclure padding dans la taille totale */
+        }
 
-    /* Suppression du style par défaut des métriques Streamlit */
-    .metric-container {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
+        .metric-card .metric-label {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
 
-    /* Style pour les graphiques */
-    .graph-container {
-        background-color: white;
-        border-radius: 6px;
-        padding: 5px;
-        margin-bottom: 6px;
-        color: black;
-        box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-    }
+        .metric-card .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
 
-    /* Titres des graphiques */
-    .graph-container h3 {
-        color: black !important;
-        margin-top: 0;
-        margin-bottom: 2px;
-        font-size: 0.85rem;
-        padding: 0;
-        line-height: 1.2;
-    }
+        .metric-card-customers {
+            background-color: #1e88e5;
+        }
+        .metric-card-spend {
+            background-color: #43a047;
+        }
+        .metric-card-frequency {
+            background-color: #fb8c00;
+        }
+        .metric-card-clv {
+            background-color: #8e24aa;
+        }
 
-    /* Footer */
-    .footer {
-        color: #b0bec5;
-        text-align: center;
-        margin-top: 8px;
-        font-size: 0.7rem;
-    }
+        /* Suppression du style par défaut des métriques Streamlit */
+        .metric-container {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
 
-    /* Override Streamlit defaults */
-    .stApp {
-        background-color: #0d2b45;
-    }
+        /* Style pour les graphiques */
+        .graph-container {
+            background-color: white;
+            border-radius: 6px;
+            padding: 5px;
+            margin-bottom: 6px;
+            color: black;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
 
-    /* Ajustez la taille des conteneurs */
-    .main .block-container {
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-    }
+        /* Titres des graphiques */
+        .graph-container h3 {
+            color: black !important;
+            margin-top: 0;
+            margin-bottom: 2px;
+            font-size: 0.85rem;
+            padding: 0;
+            line-height: 1.2;
+        }
 
-    /* Réduisez l'espace entre les éléments */
-    .main .element-container {
-        margin-bottom: 0.25rem;
-    }
+        /* Footer */
+        .footer {
+            color: #b0bec5;
+            text-align: center;
+            margin-top: 8px;
+            font-size: 0.7rem;
+        }
 
-    /* Rendre les textes blancs dans le tableau de bord principal */
-    .stMarkdown, .stText, .stMarkdown p, .stMarkdown h1, .stMarkdown h2 {
-        color: white !important;
-    }
+        /* Override Streamlit defaults */
+        .stApp {
+            background-color: #0d2b45;
+        }
 
-    /* Info boxes */
-    .stAlert {
-        background-color: #1e3a5f;
-        color: white;
-    }
+        /* Ajustez la taille des conteneurs */
+        .main .block-container {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
 
-    /* Assurer que les textes dans les conteneurs graphiques sont noirs */
-    .graph-container p, .graph-container h1, .graph-container h2, .graph-container h3, .graph-container .stMarkdown {
-        color: black !important;
-    }
+        /* Réduisez l'espace entre les éléments */
+        .main .element-container {
+            margin-bottom: 0.25rem;
+        }
 
-    /* Style pour les tableaux */
-    .dataframe {
-        font-size: 0.7rem;
-    }
-    .dataframe th {
-        background-color: #1e3a5f;
-        color: white !important;
-        padding: 3px !important;
-    }
-    .dataframe td {
-        padding: 3px !important;
-    }
-/* Stylisation de la sidebar avec fond blanc et texte bleu */
-    .css-1d391kg, .css-1wrcr25, .css-12oz5g7, [data-testid="stSidebar"] {
-        background-color: white !important;
-    }
+        /* Rendre les textes blancs dans le tableau de bord principal */
+        .stMarkdown, .stText, .stMarkdown p, .stMarkdown h1, .stMarkdown h2 {
+            color: white !important;
+        }
 
-    /* Texte et éléments de la sidebar en bleu */
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3,
-    [data-testid="stSidebar"] p,
-    [data-testid="stSidebar"] .stSelectbox label,
-    [data-testid="stSidebar"] .stMultiSelect label,
-    [data-testid="stSidebar"] .stDateInput label,
-    [data-testid="stSidebar"] span {
-        color: #0d2b45 !important;
-        font-size: 1.1rem !important;
-        font-weight: 500 !important;
-    }
+        /* Info boxes */
+        .stAlert {
+            background-color: #1e3a5f;
+            color: white;
+        }
 
-    /* Police plus grande pour les éléments de la sidebar */
-    [data-testid="stSidebar"] .stSelectbox,
-    [data-testid="stSidebar"] .stMultiSelect,
-    [data-testid="stSidebar"] .stDateInput {
-        font-size: 1.1rem !important;
-    }
+        /* Assurer que les textes dans les conteneurs graphiques sont noirs */
+        .graph-container p, .graph-container h1, .graph-container h2, .graph-container h3, .graph-container .stMarkdown {
+            color: black !important;
+        }
 
-    /* Nouveau style pour les titres de section - plus élégant */
-    .filter-section-title {
-        color: #0d2b45 !important;
-        font-weight: bold;
-        font-size: 1.2rem;
-        padding-bottom: 5px;
-        margin-bottom: 10px;
-        border-bottom: 2px solid #0d2b45;
-        text-transform: uppercase;
-    }
+        /* Style pour les tableaux */
+        .dataframe {
+            font-size: 0.7rem;
+        }
+        .dataframe th {
+            background-color: #1e3a5f;
+            color: white !important;
+            padding: 3px !important;
+        }
+        .dataframe td {
+            padding: 3px !important;
+        }
 
-    /* Style pour les sections de filtres */
-    .filter-section {
-        margin-bottom: 25px;
-        padding-bottom: 5px;
-    }
-</style>
-""", unsafe_allow_html=True)
+        /* Stylisation de la sidebar avec fond blanc et texte bleu */
+        .css-1d391kg, .css-1wrcr25, .css-12oz5g7, [data-testid="stSidebar"] {
+            background-color: white !important;
+        }
+
+        /* Texte et éléments de la sidebar en bleu */
+        [data-testid="stSidebar"] h1,
+        [data-testid="stSidebar"] h2,
+        [data-testid="stSidebar"] h3,
+        [data-testid="stSidebar"] p,
+        [data-testid="stSidebar"] .stSelectbox label,
+        [data-testid="stSidebar"] .stMultiSelect label,
+        [data-testid="stSidebar"] .stDateInput label,
+        [data-testid="stSidebar"] span {
+            color: #0d2b45 !important;
+            font-size: 1.1rem !important;
+            font-weight: 500 !important;
+        }
+
+        /* Police plus grande pour les éléments de la sidebar */
+        [data-testid="stSidebar"] .stSelectbox,
+        [data-testid="stSidebar"] .stMultiSelect,
+        [data-testid="stSidebar"] .stDateInput {
+            font-size: 1.1rem !important;
+        }
+
+        /* Nouveau style pour les titres de section - plus élégant */
+        .filter-section-title {
+            color: #0d2b45 !important;
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #0d2b45;
+            text-transform: uppercase;
+        }
+
+        /* Style pour les sections de filtres */
+        .filter-section {
+            margin-bottom: 25px;
+            padding-bottom: 5px;
+        }
+
+        /* Responsive Design pour les métriques */
+        @media screen and (max-width: 768px) {
+            .metric-card {
+                height: auto;
+                min-height: 120px;
+            }
+
+            .metric-card .metric-label {
+                font-size: 1rem;
+            }
+
+            .metric-card .metric-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+    """, unsafe_allow_html=True)
 
 # Fonction pour formater les valeurs monétaires
 def format_currency(value):
@@ -581,39 +615,7 @@ with st.sidebar:
 # Création d'une layout compact pour tout le dashboard
 layout_container = st.container()
 
-# CSS personnalisé pour les cartes de métriques colorées
-st.markdown("""
-<style>
-.metric-card {
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    color: white;
-    text-align: center;
-}
-.metric-card-customers {
-    background-color: #5470C6;  /* Bleu */
-}
-.metric-card-spend {
-    background-color: #91CC75;  /* Vert */
-}
-.metric-card-frequency {
-    background-color: #FAC858;  /* Jaune */
-}
-.metric-card-clv {
-    background-color: #EE6666;  /* Rouge */
-}
-.metric-label {
-    font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-.metric-value {
-    font-size: 20px;
-    font-weight: bold;
-}
-</style>
-""", unsafe_allow_html=True)
+
 
 with layout_container:
     # Métriques générales
@@ -634,9 +636,9 @@ with layout_container:
             with col1:
                 st.markdown(
                     f"""
-                    <div class='metric-card-customers' style="background-color: #1e88e5; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Nombre de clients           </h3>
-                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{format(len(customer_data), ',')}</h2>
+                    <div class='metric-card metric-card-customers'>
+                        <div class='metric-label'>Nombre de clients</div>
+                        <div class='metric-value'>{format(len(customer_data), ',')}</div>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -646,9 +648,9 @@ with layout_container:
                 avg_spend = customer_data['total_spend'].mean()
                 st.markdown(
                     f"""
-                    <div class='metric-card-spend' style="background-color: #43a047; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Dépense moyenne              </h3>
-                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{format_currency(avg_spend)}</h2>
+                    <div class='metric-card metric-card-spend'>
+                        <div class='metric-label'>Dépense moyenne</div>
+                        <div class='metric-value'>{format_currency(avg_spend)}</div>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -658,9 +660,9 @@ with layout_container:
                 avg_frequency = customer_data['purchase_frequency_monthly'].mean()
                 st.markdown(
                     f"""
-                    <div class='metric-card-frequency' style="background-color: #fb8c00; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Fréquence d'achat (m)</h3>
-                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{avg_frequency:.2f}</h2>
+                    <div class='metric-card metric-card-frequency'>
+                        <div class='metric-label'>Fréquence d'achat (m)</div>
+                        <div class='metric-value'>{avg_frequency:.2f}</div>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -670,9 +672,9 @@ with layout_container:
                 avg_clv = customer_data['estimated_annual_value'].mean()
                 st.markdown(
                     f"""
-                    <div class='metric-card-clv' style="background-color: #8e24aa; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Valeur moyenne (a)</h3>
-                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{format_currency(avg_clv)}</h2>
+                    <div class='metric-card metric-card-clv'>
+                        <div class='metric-label'>Valeur moyenne (a)</div>
+                        <div class='metric-value'>{format_currency(avg_clv)}</div>
                     </div>
                     """,
                     unsafe_allow_html=True
