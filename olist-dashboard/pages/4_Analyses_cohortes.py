@@ -495,9 +495,9 @@ with layout_container:
             with col1:
                 st.markdown(
                     f"""
-                    <div class='metric-card-cohort' style="background-color: #1e88e5; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Total Clients</h3>
-                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{format(int(total_customers), ',')}</h2>
+                    <div class='metric-card metric-card-cohort'>
+                        <div class='metric-label'>Total Clients</div>
+                        <div class='metric-value'>{format(int(total_customers), ',')}</div>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -506,9 +506,9 @@ with layout_container:
             with col2:
                 st.markdown(
                     f"""
-                    <div class='metric-card-retention' style="background-color: #43a047; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Rétention M+1</h3>
-                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{avg_retention_1m:.2f}%</h2>
+                    <div class='metric-card metric-card-retention' style='background-color: var(--metric-green)'>
+                        <div class='metric-label'>Rétention M+1</div>
+                        <div class='metric-value'>{avg_retention_1m:.2f}%</div>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -517,9 +517,9 @@ with layout_container:
             with col3:
                 st.markdown(
                     f"""
-                    <div class='metric-card-retention' style="background-color: #fb8c00; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Rétention M+3</h3>
-                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{avg_retention_3m:.2f}%</h2>
+                    <div class='metric-card metric-card-revenue' style='background-color: var(--metric-orange)'>
+                        <div class='metric-label'>Rétention M+3</div>
+                        <div class='metric-value'>{avg_retention_3m:.2f}%</div>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -528,9 +528,9 @@ with layout_container:
             with col4:
                 st.markdown(
                     f"""
-                    <div class='metric-card-aov' style="background-color: #8e24aa; border-radius: 10px; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); color: white; margin-bottom: 8px;">
-                        <h3 style="margin-bottom:2px; font-size:2rem; font-weight:300;">Revenu Moyen M+0</h3>
-                        <h2 style="margin:0; font-size:3rem; font-weight:300;">{format_currency(avg_revenue_per_customer)}</h2>
+                    <div class='metric-card metric-card-aov' style='background-color: var(--metric-purple)'>
+                        <div class='metric-label'>Revenu Moyen M+0</div>
+                        <div class='metric-value'>{format_currency(avg_revenue_per_customer)}</div>
                     </div>
                     """,
                     unsafe_allow_html=True
