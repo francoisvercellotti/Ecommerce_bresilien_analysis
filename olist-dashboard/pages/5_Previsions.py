@@ -384,7 +384,7 @@ with layout_container:
 
                 st.markdown(
                     f"""
-                    <div class='metric-card metric-card-clv' style='margin-top: 20px; background-color: {confidence_color} !important;'>
+                    <div class='metric-card' style="background-color: {confidence_color}; margin-top: 20px;">
                         <div class='metric-label'>Niveau de confiance</div>
                         <div class='metric-value'>{confidence}</div>
                     </div>
