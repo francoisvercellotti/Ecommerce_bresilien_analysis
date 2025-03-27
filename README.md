@@ -8,6 +8,11 @@ Ce projet est une solution complète d'ingénierie de données et d'intelligence
 
 ![Démonstration du tableau de bord](assets/screencast.gif)
 
+## Lien Streamlit Cloud
+
+[Accéder à la démo en ligne](https://ecommercebresilienanalysis-h7appyzqd8oenns6jnz96zr.streamlit.app/)
+
+
 
 ## 🔍 Caractéristiques du Jeu de Données
 - **Plateforme** : Olist E-commerce
@@ -78,12 +83,6 @@ Ce projet est une solution complète d'ingénierie de données et d'intelligence
 - Streamlit
 - UV (gestion des dépendances)
 
-## 🚀 Démarrage
-1. Cloner le dépôt
-2. Installer les dépendances : `uv pip install -r requirements.txt`
-3. Configurer la connexion à la base de données
-4. Exécuter les scripts individuels selon les besoins
-5. Lancer le tableau de bord Streamlit : `streamlit run olist-dashboard/home.py`
 
 ## 💬 Connecter & Collaborer
 Intéressé par une collaboration technique ou une discussion sur les approches d'ingénierie de données ? Connectons-nous !
