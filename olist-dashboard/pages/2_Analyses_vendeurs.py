@@ -1531,13 +1531,8 @@ with layout_container:
         st.error(f"Error while displaying category data: {e}")
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Footer avec information sur les données
-st.markdown("""
-<div class="footer">
-    <p>Dashboard d'analyse des vendeurs Olist - Données issues de la base de données Olist</p>
-    <p>Période analysée: {start} - {end}</p>
-</div>
-""".format(
-    start=start_date.strftime('%d/%m/%Y') if start_date else "Début des données",
-    end=end_date.strftime('%d/%m/%Y') if end_date else "Fin des données"
-), unsafe_allow_html=True)
+# Pied de page
+st.markdown("<div class='footer'>© 2023 Olist - Analyse Vendeurs - Dernière mise à jour: {}</div>".format(datetime.now().strftime("%d/%m/%Y %H:%M")), unsafe_allow_html=True)
+
+# Ajouter un peu d'espace en bas
+st.markdown("<div style='height: 50px;'></div>", unsafe_allow_html=True)

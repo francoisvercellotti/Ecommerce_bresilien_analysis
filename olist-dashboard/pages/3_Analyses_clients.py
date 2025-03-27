@@ -1219,4 +1219,7 @@ except Exception as e:
 st.markdown("</div>", unsafe_allow_html=True)
 
 # Pied de page
-st.markdown("<div class='footer'>© 2023 Olist - Analyse des clients - Dernière mise à jour: {}</div>".format(datetime.now().strftime("%d/%m/%Y %H:%M")), unsafe_allow_html=True)
+st.markdown("<div class='footer'>© 2023 Olist - Analyse Clients - Dernière mise à jour: {}</div>".format(datetime.now().strftime("%d/%m/%Y %H:%M")), unsafe_allow_html=True)
+
+# Ajouter un peu d'espace en bas
+st.markdown("<div style='height: 50px;'></div>", unsafe_allow_html=True)

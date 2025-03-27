@@ -848,51 +848,9 @@ with layout_container:
         st.error(f"Erreur lors de l'affichage des achats croisés: {e}")
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Section des insights
-    st.markdown("<h2 class='sub-header'>💡 Insights et opportunités</h2>", unsafe_allow_html=True)
 
-    try:
-        # Insights généraux sur les catégories
-        st.markdown("""
-        ### Insights généraux sur les catégories
+ # Pied de page
+st.markdown("<div class='footer'>© 2023 Olist - Analyse Categories - Dernière mise à jour: {}</div>".format(datetime.now().strftime("%d/%m/%Y %H:%M")), unsafe_allow_html=True)
 
-        - Les catégories avec les prix moyens les plus élevés ne sont pas nécessairement celles qui génèrent le plus de revenus.
-        - Certaines catégories présentent une forte saisonnalité dans les ventes.
-        - Des opportunités d'achat croisé existent entre certaines catégories complémentaires.
-        - Analysez les catégories ayant une faible note moyenne pour identifier des opportunités d'amélioration.
-        """)
-
-        # Insights dynamiques basés sur les données filtrées
-        if not category_performance.empty:
-            top_category = category_performance.sort_values(by="total_revenue", ascending=False).iloc[0]
-            worst_review = category_performance.sort_values(by="avg_review_score").iloc[0]
-
-            st.markdown(f"""
-            ### Insights spécifiques à la période sélectionnée
-
-            - La catégorie **{top_category['category_name']}** est la plus performante avec un revenu total de {format_currency(top_category['total_revenue'])}.
-            - La catégorie **{worst_review['category_name']}** a la note moyenne la plus basse ({worst_review['avg_review_score']:.1f}/5), ce qui pourrait indiquer des problèmes de qualité à résoudre.
-            """)
-
-            # Recommandations basées sur les données
-            if len(selected_categories) > 1:
-                st.markdown("""
-                ### Recommandations
-
-                - Concentrez vos efforts marketing sur les catégories à forte marge et volume de ventes.
-                - Envisagez des promotions croisées entre catégories fortement associées.
-                - Examinez les catégories à faible satisfaction client pour améliorer la qualité des produits ou les descriptions.
-                """)
-    except Exception as e:
-        st.error(f"Erreur lors de l'affichage des insights: {e}")
-
-    # Footer avec information sur les données
-    st.markdown("""
-    <div class="footer">
-        <p>Dashboard d'analyse des vendeurs Olist - Données issues de la base de données Olist</p>
-        <p>Période analysée: {start} - {end}</p>
-    </div>
-    """.format(
-        start=start_date.strftime('%d/%m/%Y') if start_date else "Début des données",
-        end=end_date.strftime('%d/%m/%Y') if end_date else "Fin des données"
-    ), unsafe_allow_html=True)
+# Ajouter un peu d'espace en bas
+st.markdown("<div style='height: 50px;'></div>", unsafe_allow_html=True)
