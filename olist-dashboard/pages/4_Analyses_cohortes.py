@@ -540,7 +540,7 @@ with layout_container:
             with col1:
                 st.markdown(
                     f"""
-                    <div class='metric-card metric-card-cohort'>
+                    <div class='metric-card metric-card-customers'>
                         <div class='metric-label'>Total Clients</div>
                         <div class='metric-value'>{format(int(total_customers), ',')}</div>
                     </div>
@@ -551,7 +551,7 @@ with layout_container:
             with col2:
                 st.markdown(
                     f"""
-                    <div class='metric-card metric-card-retention' style='background-color: var(--metric-green)'>
+                    <div class='metric-card metric-card-spend'>
                         <div class='metric-label'>Rétention M+1</div>
                         <div class='metric-value'>{avg_retention_1m:.2f}%</div>
                     </div>
@@ -562,7 +562,7 @@ with layout_container:
             with col3:
                 st.markdown(
                     f"""
-                    <div class='metric-card metric-card-revenue' style='background-color: var(--metric-orange)'>
+                    <div class='metric-card metric-card-frequency'>
                         <div class='metric-label'>Rétention M+3</div>
                         <div class='metric-value'>{avg_retention_3m:.2f}%</div>
                     </div>
@@ -573,7 +573,7 @@ with layout_container:
             with col4:
                 st.markdown(
                     f"""
-                    <div class='metric-card metric-card-aov' style='background-color: var(--metric-purple)'>
+                    <div class='metric-card metric-card-clv'>
                         <div class='metric-label'>Revenu Moyen M+0</div>
                         <div class='metric-value'>{format_currency(avg_revenue_per_customer)}</div>
                     </div>
