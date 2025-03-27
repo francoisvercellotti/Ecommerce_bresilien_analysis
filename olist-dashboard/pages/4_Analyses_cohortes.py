@@ -77,32 +77,33 @@ st.markdown("""
 
     /* Métriques */
     .metric-card {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background-color: var(--metric-blue);
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 10px;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-        min-height: 90px;
-        width: 100%;
-        overflow: hidden;
-    }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 180px; /* Hauteur fixe */
+    width: 100%; /* Largeur complète */
+    padding: 15px;
+    box-sizing: border-box; /* Pour inclure padding dans la taille totale */
+}
 
     .metric-card .metric-label {
-        font-size: 0.9rem;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        max-width: 100%;
     }
 
     .metric-card .metric-value {
-        font-size: 1.2rem;
+        font-size: 2rem;
         font-weight: bold;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        max-width: 100%;
     }
 
     /* Variations de couleurs pour métriques */
@@ -175,14 +176,16 @@ st.markdown("""
     /* Responsive Design */
     @media screen and (max-width: 768px) {
         .metric-card {
-            flex-direction: column;
-            align-items: flex-start;
+            height: auto;
+            min-height: 120px;
         }
 
-        .metric-card .metric-label,
+        .metric-card .metric-label {
+            font-size: 1rem;
+        }
+
         .metric-card .metric-value {
-            width: 100%;
-            text-align: left;
+            font-size: 1.5rem;
         }
     }
 
