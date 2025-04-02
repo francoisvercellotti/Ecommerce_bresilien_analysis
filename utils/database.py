@@ -23,7 +23,7 @@ def create_db_engine():
         st.error(f"Erreur de connexion à la base de données : {e}")
         return None
 
-# Le reste de votre code reste identique
+
 def clear_table(engine, table_name):
     """Vide une table en utilisant TRUNCATE ... CASCADE."""
     with engine.begin() as connection:
